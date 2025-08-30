@@ -3,14 +3,17 @@
 @section('content')
     <h1 class="text-success fw-bold display-5 ms-3">Dashboard</h1>
     @auth
+        <div class="text-center my-2">
         @if(auth()->user()->role === 'admin')
-            <p>Welcome Admin {{ auth()->user()->name }}</p>
+            <h4>Welcome {{ auth()->user()->name }}</h4>
         @elseif(auth()->user()->role === 'cashier')
-            <p>Welcome Cashier {{ auth()->user()->name }}</p>
+            <h4>Welcome {{ auth()->user()->name }}</h4>
         @else
-            <p>Welcome User {{ auth()->user()->name }}</p>
+            <h4>Welcome User {{ auth()->user()->name }}</h4>
         @endif
+    </div>
     @endauth
+
 
 
 

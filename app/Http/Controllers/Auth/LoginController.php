@@ -25,13 +25,27 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/dashboard';
+    protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
+
+    protected function authenticated($request, $user)
+    {
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->role === 'cashier') {
+            return redirect()->route('cashier.dashboard');
+        } else {
+            return redirect()->route('user.dashboard'); // optional if you add user role
+        }
+    }
+
+
+    
     public function __construct()
     {
         $this->middleware('guest')->except('logout');

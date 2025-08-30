@@ -6,7 +6,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\PurchaseHistoryController;
+use App\Http\Controllers\CashierDashboardController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -14,10 +16,24 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::middleware(['auth', 'role:admin'])
+    ->get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+    ->name('admin.dashboard');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::middleware(['auth', 'role:cashier'])
+    ->get('/cashier/dashboard', [CashierDashboardController::class, 'index'])
+    ->name('cashier.dashboard');
+
+// Route::middleware(['auth', 'role:user'])
+//     ->get('/user/dashboard', [UserDashboardController::class, 'index'])
+//     ->name('user.dashboard');
+
+
+// Route::middleware(['auth', 'role:user'])->group(function () {
+//     Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+// });
+
+
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

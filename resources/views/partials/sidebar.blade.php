@@ -13,7 +13,7 @@
     <!-- Sidebar Menu -->
     <ul class="nav flex-column mt-3">
         <li class="nav-item">
-            <a href="{{ route('dashboard') }}" 
+            <a href="{{ route('admin.dashboard') }}" 
                class="nav-link text-white fw-semibold {{ request()->routeIs('dashboard') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-house me-2"></i> Dashboard
             </a>
