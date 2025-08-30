@@ -2,13 +2,19 @@
 
 @section('content')
     <h1 class="text-success fw-bold display-5 ms-3">Dashboard</h1>
-    @if(auth()->user()->isAdmin())
-        <div class="text-center my-2">
-            <h2 class="fw-bold text-success">
-                Welcome, <span class="text-dark">{{ auth()->user()->name }}</span>!
-            </h2>
-        </div>
-    @endif
+    @auth
+        @if(auth()->user()->role === 'admin')
+            <p>Welcome Admin {{ auth()->user()->name }}</p>
+        @elseif(auth()->user()->role === 'cashier')
+            <p>Welcome Cashier {{ auth()->user()->name }}</p>
+        @else
+            <p>Welcome User {{ auth()->user()->name }}</p>
+        @endif
+    @endauth
+
+
+
+
 
     <div class="row mt-4 g-4">
         {{-- TOTAL PRODUCT --}}

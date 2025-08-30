@@ -11,11 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::table('users', function (Blueprint $table) {
-        $table->enum('role', ['admin', 'user'])->default('user')->after('password');
-        $table->enum('status', ['active', 'inactive'])->default('active')->after('role');
-        $table->string('username')->nullable()->unique()->after('name');
-     });
+        Schema::table('users', function (Blueprint $table) {
+            // Add role column (only admin, user, cashier)
+            $table->enum('role', ['admin', 'user', 'cashier'])
+                  ->default('user')
+                  ->after('password');
+
+            // Add status column
+            $table->enum('status', ['active', 'inactive'])
+                  ->default('active')
+                  ->after('role');
+
+            // Add username column
+            $table->string('username')
+                  ->nullable()
+                  ->unique()
+                  ->after('name');
+        });
     }
 
     /**
@@ -24,7 +36,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-             $table->dropColumn(['role', 'status', 'username']);
+            $table->dropColumn(['role', 'status', 'username']);
         });
     }
 };

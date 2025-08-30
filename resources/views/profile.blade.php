@@ -29,9 +29,9 @@
                     </button>
                 </div>
             </div>
-            <div class="flex text-center items-center justify-center w-full">
-                <h1 class="text-[#A0C878] font-bold text-8xl ml-3 text-shadow-lg mb-10">{{ $user->name ?? 'N/A' }}</h1>
-            </div>
+           @auth
+        
+            
         </div>
     </div>
 
