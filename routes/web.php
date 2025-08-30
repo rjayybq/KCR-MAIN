@@ -37,6 +37,7 @@ Route::get('admin/dashboard/stats', function () {
     ]);
 })->name('dashboard.stats');
 
+
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Products Index (list all)
@@ -58,6 +59,9 @@ Route::put('/products/{product}', [ProductController::class, 'update'])->name('p
 
 // Delete Product
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+Route::resource('users', UserController::class)->only(['index', 'destroy', 'create', 'store', 'edit', 'update']);
+// Route::resource('users', UserController::class);
 
 
 Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');

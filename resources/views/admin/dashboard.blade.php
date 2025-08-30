@@ -64,8 +64,8 @@
             <div class="card shadow-lg border-0" style="background-color: #9EBC8A;">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="text-light fw-bold fs-3 mb-1">5,304</h1>
-                        {{-- <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalAccounts) }}</h1> --}}
+                        {{-- <h1 class="text-light fw-bold fs-3 mb-1">5,304</h1> --}}
+                        <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalAccounts) }}</h1>
                         <h2 class="text-light fw-bold fs-4 mb-0">Total Account</h2>
                     </div>
                     <i class="fa-solid fa-circle-user text-light fs-1"></i>
