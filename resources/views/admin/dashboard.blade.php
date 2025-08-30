@@ -25,13 +25,13 @@
             <div class="card shadow-lg border-0" style="background-color: #A0C878;">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="text-light fw-bold fs-3 mb-1">2,304</h1>
+                        <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalProducts) }}</h1>
                         <h2 class="text-light fw-bold fs-4 mb-0">Total Product</h2>
                     </div>
                     <i class="fa-solid fa-cart-shopping text-light fs-1"></i>
                 </div>
                 <div class="card-footer bg-success d-flex justify-content-center">
-                    <a href="{{ route('products') }}" class="text-white fw-semibold text-decoration-none d-flex align-items-center">
+                    <a href="{{ route('products.index') }}" class="text-white fw-semibold text-decoration-none d-flex align-items-center">
                         More Info
                         <i class="fa-solid fa-arrow-right ms-2 p-2 rounded-circle" style="background:#537D5D; font-size:12px;"></i>
                     </a>
@@ -45,6 +45,7 @@
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h1 class="text-light fw-bold fs-3 mb-1">1,234</h1>
+                        {{-- <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalInventory) }}</h1> --}}
                         <h2 class="text-light fw-bold fs-4 mb-0">Total Inventory</h2>
                     </div>
                     <i class="fa-solid fa-warehouse text-light fs-1"></i>
@@ -64,6 +65,7 @@
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h1 class="text-light fw-bold fs-3 mb-1">5,304</h1>
+                        {{-- <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalAccounts) }}</h1> --}}
                         <h2 class="text-light fw-bold fs-4 mb-0">Total Account</h2>
                     </div>
                     <i class="fa-solid fa-circle-user text-light fs-1"></i>
@@ -83,6 +85,7 @@
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h1 class="text-light fw-bold fs-3 mb-1">2,304</h1>
+                        {{-- <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalPurchases) }}</h1> --}}
                         <h2 class="text-light fw-bold fs-4 mb-0">Total Purchase</h2>
                     </div>
                     <i class="fa-solid fa-shop text-light fs-1"></i>
@@ -97,3 +100,20 @@
         </div>
     </div>
 @endsection
+
+<script>
+    async function fetchDashboardStats() {
+        let response = await fetch("{{ route('dashboard.stats') }}");
+        let data = await response.json();
+
+        document.getElementById('totalProducts').innerText = data.totalProducts.toLocaleString();
+        document.getElementById('totalInventory').innerText = data.totalInventory.toLocaleString();
+        document.getElementById('totalAccounts').innerText = data.totalAccounts.toLocaleString();
+        document.getElementById('totalPurchases').innerText = data.totalPurchases.toLocaleString();
+    }
+
+    // Fetch immediately
+    fetchDashboardStats();
+    // Refresh every 5 seconds
+    setInterval(fetchDashboardStats, 5000);
+</script>

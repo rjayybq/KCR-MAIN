@@ -20,7 +20,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('products') }}" 
+            <a href="{{ route('products.index') }}" 
                class="nav-link text-white fw-semibold {{ request()->routeIs('products') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-cart-shopping me-2"></i> Products
             </a>

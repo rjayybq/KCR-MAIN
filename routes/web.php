@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\User;
+use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -24,20 +27,38 @@ Route::middleware(['auth', 'role:cashier'])
     ->get('/cashier/dashboard', [CashierDashboardController::class, 'index'])
     ->name('cashier.dashboard');
 
-// Route::middleware(['auth', 'role:user'])
-//     ->get('/user/dashboard', [UserDashboardController::class, 'index'])
-//     ->name('user.dashboard');
 
+Route::get('admin/dashboard/stats', function () {
+    return response()->json([
+        'totalProducts'  => Product::count(),
+        'totalInventory' => Product::sum('stock'),
+        'totalAccounts'  => User::count(),
+        'totalPurchases' => Order::count(),
+    ]);
+})->name('dashboard.stats');
 
-// Route::middleware(['auth', 'role:user'])->group(function () {
-//     Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
-// });
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+// Products Index (list all)
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
+Route::post('/products/{id}/order', [ProductController::class, 'order'])->name('products.order');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Create Product (form)
+Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
 
-Route::get('/products', [ProductController::class, 'index'])->name('products');
+// Store Product (save new)
+Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+
+// Edit Product (form)
+Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+
+// Update Product (save changes)
+Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+
+// Delete Product
+Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
 
 Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
 
