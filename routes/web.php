@@ -13,10 +13,14 @@ Route::get('/', function () {
 });
 
 Auth::routes();
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
 Route::get('/products', [ProductController::class, 'index'])->name('products');
 
 Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');

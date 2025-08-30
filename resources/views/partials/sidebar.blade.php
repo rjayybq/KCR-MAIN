@@ -54,13 +54,13 @@
             </a>
         </li>
         <li class="nav-item">
-         <form method="POST" action="{{ route('logout') }}">
-            @csrf
-        <button type="submit" 
-            class="nav-link text-white fw-semibold border-0 bg-transparent w-100 text-start {{ request()->routeIs('logout') ? 'active bg-success bg-opacity-50' : '' }}">
-            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
-        </button>
-    </form>
-</li>
+            <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                <button type="submit" 
+                    class="nav-link text-white fw-semibold border-0 bg-transparent w-100 text-start {{ request()->routeIs('logout') ? 'active bg-success bg-opacity-50' : '' }}">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                </button>
+            </form>
+        </li>
     </ul>
 </aside>
