@@ -88,7 +88,7 @@ Route::get('/accountList', [UserController::class, 'index'])->name('accountList'
 Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchaseHistory');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
 });
 
