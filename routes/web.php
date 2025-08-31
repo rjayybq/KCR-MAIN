@@ -19,13 +19,29 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::middleware(['auth', 'role:admin'])
-    ->get('/admin/dashboard', [AdminDashboardController::class, 'index'])
-    ->name('admin.dashboard');
+// Admin-only routes
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('users', UserController::class); // account management
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+});
 
-Route::middleware(['auth', 'role:cashier'])
-    ->get('/cashier/dashboard', [CashierDashboardController::class, 'index'])
-    ->name('cashier.dashboard');
+// Cashier-only routes
+Route::middleware(['auth', 'role:cashier'])->group(function () {
+    Route::get('/cashier/dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
+});
+
+// Both Admin & Cashier can access products
+Route::middleware(['auth', 'role:admin,cashier'])->group(function () {
+    Route::resource('products', ProductController::class);
+});
+
+// Route::middleware(['auth', 'role:admin'])
+//     ->get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+//     ->name('admin.dashboard');
+
+// Route::middleware(['auth', 'role:cashier'])
+//     ->get('/cashier/dashboard', [CashierDashboardController::class, 'index'])
+//     ->name('cashier.dashboard');
 
 
 Route::get('admin/dashboard/stats', function () {
