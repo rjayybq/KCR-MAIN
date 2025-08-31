@@ -80,7 +80,7 @@ Route::resource('users', UserController::class)->only(['index', 'destroy', 'crea
 // Route::resource('users', UserController::class);
 
 
-Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
+Route::resource('inventories', InventoryController::class)->middleware(['auth', 'role:admin,cashier']);
 
 Route::get('/accountList', [UserController::class, 'index'])->name('accountList');
 

@@ -27,7 +27,7 @@
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('inventory') }}" 
+            <a href="{{ route('inventories.index') }}" 
                class="nav-link text-white fw-semibold {{ request()->routeIs('inventory') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-warehouse me-2"></i> Inventory
             </a>

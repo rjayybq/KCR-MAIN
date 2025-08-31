@@ -2,63 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $inventories = Inventory::with('category')->paginate(10);
+        return view('inventories.index', compact('inventories'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+        public function create()
     {
-        //
+        $categories = Category::all();
+        return view('inventories.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'ProductName' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'weight' => 'required|numeric|min:0',
+            'unit' => 'required|string|max:50',
+            'stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        Inventory::create($request->all());
+
+        return redirect()->route('inventories.index')->with('success', 'Product added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+        public function edit($id)
     {
-        //
+        $inventory = Inventory::findOrFail($id);
+        $categories = Category::all();
+        return view('inventories.edit', compact('inventory', 'categories'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $inventory = Inventory::findOrFail($id);
+
+        $request->validate([
+            'ProductName' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'weight' => 'required|numeric|min:0',
+            'unit' => 'required|string|max:50',
+            'stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        $inventory->update($request->all());
+
+        return redirect()->route('inventories.index')->with('success', 'Product updated successfully!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $inventory = Inventory::findOrFail($id);
+        $inventory->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('inventories.index')->with('success', 'Product removed successfully!');
     }
 }
