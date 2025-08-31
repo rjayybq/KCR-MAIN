@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\PurchaseHistoryController;
@@ -84,7 +85,7 @@ Route::resource('inventories', InventoryController::class)->middleware(['auth', 
 
 Route::get('/accountList', [UserController::class, 'index'])->name('accountList');
 
-Route::get('/purchaseHistory', [PurchaseHistoryController::class, 'index'])->name('purchaseHistory');
+Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchaseHistory');
 
 Route::get('/profile', function () {
     return view('profile');
