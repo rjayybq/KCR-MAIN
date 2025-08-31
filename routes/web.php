@@ -87,6 +87,18 @@ Route::get('/accountList', [UserController::class, 'index'])->name('accountList'
 
 Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchaseHistory');
 
-Route::get('/profile', function () {
-    return view('profile');
-})->name('profile');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+});
+
+
+// // Show profile page
+// Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+
+// // Update profile
+// Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
+// Route::get('/profile', function () {
+//     return view('profile');
+// })->name('profile');
