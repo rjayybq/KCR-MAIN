@@ -21,21 +21,8 @@ Route::get('/', function () {
 
 Auth::routes();
 
-// // Admin-only routes
-// Route::middleware(['auth', 'role:admin'])->group(function () {
-//     Route::resource('users', UserController::class); // account management
-//     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-// });
 
-// // Cashier-only routes
-// Route::middleware(['auth', 'role:cashier'])->group(function () {
-//     Route::get('/cashier/dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
-// });
 
-// // Both Admin & Cashier can access products
-// Route::middleware(['auth', 'role:admin,cashier'])->group(function () {
-//     Route::resource('products', ProductController::class);
-// });
 
 
 Route::get('admin/dashboard/stats', function () {
@@ -47,6 +34,8 @@ Route::get('admin/dashboard/stats', function () {
     ]);
 })->name('dashboard.stats');
 
+
+
 // -------------------- ADMIN ROUTES --------------------
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
@@ -56,7 +45,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/products/{product}/order', [ProductController::class, 'order'])
         ->name('products.order');
     
-    // Users (Accounts)
+    //Account Management
     Route::resource('users', UserController::class); 
 
     // Inventories
@@ -69,16 +58,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/purchase-history', [PurchaseController::class, 'index'])->name('purchaseHistory');
 
     // Profile
-    Route::get('/profile', [UserController::class, 'show'])->name('profile.show');
-    Route::put('/profile', [UserController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [UserController::class, 'show'])->name('cashier.show');
+    Route::put('/profile', [UserController::class, 'update'])->name('cahier.update');
 });
+
 
 
 
 // -------------------- CASHIER ROUTES --------------------
 Route::middleware(['auth', 'role:cashier'])->group(function () {
+
+    // Cashier Dashboard
+    Route::get('/cashier/dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
     // Cashier purchase history (own handled purchases)
-   Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
+    Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
         ->name('cashier.purchaseHistory');
 });
 

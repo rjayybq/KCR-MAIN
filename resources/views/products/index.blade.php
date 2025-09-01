@@ -20,67 +20,63 @@
             {{ session('error') }}
         </div>
     @endif
-    
-    <div class="table-responsive shadow rounded">
-        <table class="table table-striped table-hover align-middle text-center">
-            <thead class="table-success">
-                <tr>
-                    <th scope="col">Product Name</th>
-                    <th scope="col">Categories</th>
-                    <th scope="col">Kg/gram</th>
-                    <th scope="col">Stock</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($products as $product)
-                    <tr>
-                        <td class="fw-semibold">{{ $product->ProductName }}</td>
-                        <td>{{ $product->category->name ?? 'N/A' }}</td>
-                        <td>{{ $product->weight . " " . $product->unit }}</td>
-                        <td>{{ $product->stock }}</td>
-                        <td>₱{{ number_format($product->price, 2) }}</td>
-                       <td>
-                            <div class="d-flex justify-content-center gap-2">
-                                <!-- Order Button -->
-                             <form action="{{ route('products.order', $product->id) }}" method="POST" class="d-flex align-items-center justify-content-center gap-2">
-                                    @csrf
-                                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="form-control form-control-sm" style="width: 70px;">
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        ORDER
-                                    </button>
+
+    <div class="row g-4">
+        @forelse ($products as $product)
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="card shadow-sm h-100 border-0">
+                    <!-- Product Image -->
+                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x200?text=No+Image' }}"
+                         class="card-img-top" alt="{{ $product->ProductName }}" style="height:200px; object-fit:cover;">
+
+                    <div class="card-body d-flex flex-column">
+                        <!-- Product Info -->
+                        <h5 class="card-title fw-bold text-success">{{ $product->ProductName }}</h5>
+                        <p class="mb-1"><strong>Category:</strong> {{ $product->category->name ?? 'N/A' }}</p>
+                        <p class="mb-1"><strong>Weight:</strong> {{ $product->weight . " " . $product->unit }}</p>
+                        <p class="mb-1"><strong>Stock:</strong> {{ $product->stock }}</p>
+                        <p class="fw-bold text-dark">₱{{ number_format($product->price, 2) }}</p>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-auto">
+                            <!-- Order Form -->
+                            <form action="{{ route('products.order', $product->id) }}" method="POST" class="d-flex gap-2 mb-2">
+                                @csrf
+                                <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}"
+                                       class="form-control form-control-sm" style="width:70px;">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-cart-plus"></i> Order
+                                </button>
                             </form>
 
-
-                                <!-- Edit Button -->
-                                <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning btn-sm">
-                                    Edit
+                            <!-- Edit & Delete -->
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning btn-sm w-50">
+                                    <i class="bi bi-pencil-square"></i> Edit
                                 </a>
 
-                                <!-- Delete Button -->
                                 <form action="{{ route('products.destroy', $product->id) }}" method="POST"
-                                    onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                      onsubmit="return confirm('Are you sure you want to delete this product?');" class="w-50">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        Delete
+                                    <button type="submit" class="btn btn-danger btn-sm w-100">
+                                        <i class="bi bi-trash"></i> Delete
                                     </button>
                                 </form>
                             </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="6" class="pt-3">
-                        <div class="d-flex justify-content-center">
-                            {!! $products->links('vendor.pagination.bootstrap-4') !!}
                         </div>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12">
+                <div class="alert alert-warning text-center">No products available.</div>
+            </div>
+        @endforelse
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {!! $products->links('vendor.pagination.bootstrap-4') !!}
     </div>
 @endsection

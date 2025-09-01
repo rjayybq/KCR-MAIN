@@ -49,7 +49,13 @@
                 <i class="fa-solid fa-warehouse me-2"></i> Inventory
             </a>
         </li> --}}
-
+        <li class="nav-item">
+            <a href="{{ route('cashier.dashboard') }}" 
+               class="nav-link text-white fw-semibold {{ request()->routeIs('admin.dashboard') ? 'active bg-success bg-opacity-50' : '' }}">
+                <i class="fa-solid fa-house me-2"></i> Dashboard
+            </a>
+        </li>
+        
         <li class="nav-item">
             @if(auth()->user()->role === 'admin')
                 <a href="{{ route('purchaseHistory') }}" 

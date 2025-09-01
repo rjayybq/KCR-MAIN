@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Storage;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Category;
@@ -23,22 +24,39 @@ class ProductController extends Controller
         return view('products.create', compact('categories'));
     }
 
-    // Store new product
-    public function store(Request $request)
+        // Store new product
+        public function store(Request $request)
     {
         $request->validate([
             'ProductName' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'weight'      => 'nullable|numeric',
-            'unit'        => 'required|string',
-            'stock'       => 'required|integer',
-            'price'       => 'required|numeric',
+            'weight'      => 'nullable|numeric|min:0',
+            'unit'        => 'nullable|string|in:kg,g,lb',
+            'stock'       => 'required|integer|min:0',
+            'price'       => 'required|numeric|min:0',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        Product::create($request->all());
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public'); 
+            // stored in storage/app/public/products
+        }
+
+        Product::create([
+            'ProductName' => $request->ProductName,
+            'category_id' => $request->category_id,
+            'weight'      => $request->weight,
+            'unit'        => $request->unit,
+            'stock'       => $request->stock,
+            'price'       => $request->price,
+            'image'       => $imagePath,
+        ]);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
+
+
 
     // Show edit form
     public function edit(Product $product)
@@ -76,6 +94,7 @@ class ProductController extends Controller
             ->with('error', 'Not enough stock for ' . $product->ProductName);
     }
 
+    
 
 
     // Update product
@@ -84,16 +103,39 @@ class ProductController extends Controller
         $request->validate([
             'ProductName' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'weight'      => 'nullable|numeric',
-            'unit'        => 'required|string',
-            'stock'       => 'required|integer',
-            'price'       => 'required|numeric',
+            'weight'      => 'nullable|numeric|min:0',
+            'unit'        => 'nullable|string|in:kg,g,lb',
+            'stock'       => 'required|integer|min:0',
+            'price'       => 'required|numeric|min:0',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        $product->update($request->all());
+        // Handle new image
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                \Storage::disk('public')->delete($product->image);
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('products', 'public');
+            $product->image = $imagePath;
+        }
+
+        // Update other fields
+        $product->update([
+            'ProductName' => $request->ProductName,
+            'category_id' => $request->category_id,
+            'weight'      => $request->weight,
+            'unit'        => $request->unit,
+            'stock'       => $request->stock,
+            'price'       => $request->price,
+            'image'       => $product->image, // updated if new uploaded
+        ]);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
+
 
     // Delete product
     public function destroy(Product $product)
