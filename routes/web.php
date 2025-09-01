@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\CashierProfileController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\CashierDashboardController;
 
@@ -20,29 +21,21 @@ Route::get('/', function () {
 
 Auth::routes();
 
-// Admin-only routes
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::resource('users', UserController::class); // account management
-    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-});
+// // Admin-only routes
+// Route::middleware(['auth', 'role:admin'])->group(function () {
+//     Route::resource('users', UserController::class); // account management
+//     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+// });
 
-// Cashier-only routes
-Route::middleware(['auth', 'role:cashier'])->group(function () {
-    Route::get('/cashier/dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
-});
+// // Cashier-only routes
+// Route::middleware(['auth', 'role:cashier'])->group(function () {
+//     Route::get('/cashier/dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
+// });
 
-// Both Admin & Cashier can access products
-Route::middleware(['auth', 'role:admin,cashier'])->group(function () {
-    Route::resource('products', ProductController::class);
-});
-
-// Route::middleware(['auth', 'role:admin'])
-//     ->get('/admin/dashboard', [AdminDashboardController::class, 'index'])
-//     ->name('admin.dashboard');
-
-// Route::middleware(['auth', 'role:cashier'])
-//     ->get('/cashier/dashboard', [CashierDashboardController::class, 'index'])
-//     ->name('cashier.dashboard');
+// // Both Admin & Cashier can access products
+// Route::middleware(['auth', 'role:admin,cashier'])->group(function () {
+//     Route::resource('products', ProductController::class);
+// });
 
 
 Route::get('admin/dashboard/stats', function () {
@@ -54,61 +47,43 @@ Route::get('admin/dashboard/stats', function () {
     ]);
 })->name('dashboard.stats');
 
+// -------------------- ADMIN ROUTES --------------------
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    // Products
+    Route::resource('products', ProductController::class);
+    Route::post('/products/{product}/order', [ProductController::class, 'order'])
+        ->name('products.order');
+    
+    // Users (Accounts)
+    Route::resource('users', UserController::class); 
 
-// Products Index (list all)
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    // Inventories
+    Route::resource('inventories', InventoryController::class);
 
-Route::post('/products/{id}/order', [ProductController::class, 'order'])->name('products.order');
+    // Account list (users)
+    Route::get('/account-list', [UserController::class, 'index'])->name('accountList');
 
-// Create Product (form)
-Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+    // Purchase history (all purchases)
+    Route::get('/purchase-history', [PurchaseController::class, 'index'])->name('purchaseHistory');
 
-// Store Product (save new)
-Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-
-// Edit Product (form)
-Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-
-// Update Product (save changes)
-Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-
-// Delete Product
-Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-
-Route::resource('users', UserController::class)->only(['index', 'destroy', 'create', 'store', 'edit', 'update']);
-// Route::resource('users', UserController::class);
+    // Profile
+    Route::get('/profile', [UserController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [UserController::class, 'update'])->name('profile.update');
+});
 
 
-Route::resource('inventories', InventoryController::class)->middleware(['auth', 'role:admin,cashier']);
 
-Route::get('/accountList', [UserController::class, 'index'])->name('accountList');
-
-// Admin Purchase History
-Route::get('/purchase-history', [PurchaseController::class, 'index'])
-    ->name('purchaseHistory')
-    ->middleware('role:admin'); // only admin
-
-// Cashier Purchase History
-Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
-    ->name('cashier.purchaseHistory')
-    ->middleware('role:cashier'); // only cashier
-
+// -------------------- CASHIER ROUTES --------------------
+Route::middleware(['auth', 'role:cashier'])->group(function () {
+    // Cashier purchase history (own handled purchases)
+   Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
+        ->name('cashier.purchaseHistory');
+});
 
 
 Route::middleware(['auth'])->group(function () {
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
 });
-
-
-// // Show profile page
-// Route::get('/profile', [UserController::class, 'profile'])->name('profile');
-
-// // Update profile
-// Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
-
-// Route::get('/profile', function () {
-//     return view('profile');
-// })->name('profile');
