@@ -58,8 +58,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/purchase-history', [PurchaseController::class, 'index'])->name('purchaseHistory');
 
     // Profile
-    Route::get('/profile', [UserController::class, 'show'])->name('cashier.show');
-    Route::put('/profile', [UserController::class, 'update'])->name('cahier.update');
+    Route::get('/profile', [UserController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [UserController::class, 'update'])->name('profile.update');
 });
 
 
@@ -70,6 +70,8 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
 
     // Cashier Dashboard
     Route::get('/cashier/dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
+    Route::post('/cashier/order/{product}', [CashierDashboardController::class, 'storeOrder'])->name('cashier.order');   
+     
     // Cashier purchase history (own handled purchases)
     Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
         ->name('cashier.purchaseHistory');

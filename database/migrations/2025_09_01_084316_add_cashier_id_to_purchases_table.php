@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('purchases', function (Blueprint $table) {
-            $table->unsignedBigInteger('cashier_id')->nullable()->after('user_id');
-
-            // Add foreign key (optional but recommended)
-            $table->foreign('cashier_id')->references('id')->on('users')->onDelete('cascade');
+             $table->foreignId('cashier_id')->nullable()->constrained('users')->onDelete('set null');
         });
     }
 

@@ -2,38 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
 
 class PurchaseController extends Controller
 {
-    public function index(Request $request)
+       public function index(Request $request)
     {
-        $query = Purchase::with(['user', 'product']);
+        $query = Order::with(['product', 'cashier']);
 
-        // Filter by customer name
         if ($request->filled('customer')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->customer . '%');
-            });
+            $query->where('customer_name', 'like', '%' . $request->customer . '%');
         }
 
-        // Filter by product name
         if ($request->filled('product')) {
             $query->whereHas('product', function ($q) use ($request) {
                 $q->where('ProductName', 'like', '%' . $request->product . '%');
             });
         }
 
-        // Filter by date range
-        if ($request->filled('from') && $request->filled('to')) {
-            $query->whereBetween('created_at', [
-                $request->from . ' 00:00:00',
-                $request->to . ' 23:59:59',
-            ]);
-        }
-
-        $purchases = $query->latest()->paginate(10)->appends($request->query());
+        $purchases = $query->latest()->paginate(10);
 
         return view('purchases.index', compact('purchases'));
     }

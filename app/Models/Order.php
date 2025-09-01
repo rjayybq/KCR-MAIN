@@ -10,10 +10,25 @@ class Order extends Model
 {
      use HasFactory;
 
-    protected $fillable = ['product_id', 'quantity', 'total_price'];
+   protected $fillable = [
+        'product_id',
+        'cashier_id',
+        'customer_name',
+        'customer_email',
+        'quantity',
+        'total_price',
+        
+    ];
+
+    
 
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function cashier()
+    {
+        return $this->belongsTo(User::class, 'cashier_id');
     }
 }
