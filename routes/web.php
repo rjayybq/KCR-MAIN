@@ -85,7 +85,17 @@ Route::resource('inventories', InventoryController::class)->middleware(['auth', 
 
 Route::get('/accountList', [UserController::class, 'index'])->name('accountList');
 
-Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchaseHistory');
+// Admin Purchase History
+Route::get('/purchase-history', [PurchaseController::class, 'index'])
+    ->name('purchaseHistory')
+    ->middleware('role:admin'); // only admin
+
+// Cashier Purchase History
+Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
+    ->name('cashier.purchaseHistory')
+    ->middleware('role:cashier'); // only cashier
+
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('profile', [UserController::class, 'profile'])->name('profile');

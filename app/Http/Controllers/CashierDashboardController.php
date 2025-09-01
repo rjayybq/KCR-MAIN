@@ -11,4 +11,8 @@ class CashierDashboardController extends Controller
         return view('dashboard.cashier'); 
     }
 
+    public function index1()
+    {
+        return view('dashboard.index1'); 
+    }
 }

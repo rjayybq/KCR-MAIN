@@ -25,4 +25,10 @@ class Purchase extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    
+    public function cashier()
+    {
+        return $this->belongsTo(User::class, 'cashier_id');
+    }
+
 }

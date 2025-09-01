@@ -36,25 +36,32 @@
 
     <!-- Sidebar Menu -->
     <ul class="nav flex-column mt-3">
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="{{ route('products.index') }}" 
                class="nav-link text-white fw-semibold {{ request()->routeIs('products.*') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-cart-shopping me-2"></i> Products
             </a>
-        </li>
+        </li> --}}
 
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="{{ route('inventories.index') }}" 
                class="nav-link text-white fw-semibold {{ request()->routeIs('inventories.*') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-warehouse me-2"></i> Inventory
             </a>
-        </li>
+        </li> --}}
 
         <li class="nav-item">
-            <a href="{{ route('purchaseHistory') }}" 
-               class="nav-link text-white fw-semibold {{ request()->routeIs('purchaseHistory') ? 'active bg-success bg-opacity-50' : '' }}">
-                <i class="fa-solid fa-shop me-2"></i> Purchase History
-            </a>
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('purchaseHistory') }}" 
+                class="nav-link text-white fw-semibold {{ request()->routeIs('purchaseHistory') ? 'active bg-success bg-opacity-50' : '' }}">
+                    <i class="fa-solid fa-shop me-2"></i> Purchase History
+                </a>
+            @elseif(auth()->user()->role === 'cashier')
+                <a href="{{ route('cashier.purchaseHistory') }}" 
+                class="nav-link text-white fw-semibold {{ request()->routeIs('cashier.purchaseHistory') ? 'active bg-success bg-opacity-50' : '' }}">
+                    <i class="fa-solid fa-shop me-2"></i> My Sales
+                </a>
+            @endif
         </li>
 
         @auth
