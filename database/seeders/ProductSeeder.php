@@ -13,13 +13,13 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-            $vegetables = Category::create(['name' => 'Vegetables']);
-            $fruits     = Category::create(['name' => 'Fruits']);
-            $grains     = Category::create(['name' => 'Grains']);
+            $appetizers = Category::create(['name' => 'Appetizers / Pulutan']);
+            $dishes     = Category::create(['name' => 'Main Dishes']);
+            $alcohols     = Category::create(['name' => 'Alcoholic Beverages']);
 
         Product::create([
-            'ProductName' => 'CARROT',
-            'category_id' => $vegetables->id,  // ✅ category_id not category
+            'ProductName' => 'SISIG',
+            'category_id' => $appetizers->id,  // ✅ category_id not category
             'weight'      => 1.5,
             'unit'        => 'kg',
             'stock'       => 50,
@@ -27,8 +27,8 @@ class ProductSeeder extends Seeder
         ]);
 
        Product::create([
-            'ProductName' => 'APPLE',
-            'category_id' => $vegetables->id,  // ✅ category_id not category
+            'ProductName' => 'CHICKEN INASAL',
+            'category_id' => $dishes->id,  // ✅ category_id not category
             'weight'      => 1.5,
             'unit'        => 'kg',
             'stock'       => 50,
@@ -36,8 +36,8 @@ class ProductSeeder extends Seeder
         ]);
 
        Product::create([
-            'ProductName' => 'BANANA',
-            'category_id' => $vegetables->id,  // ✅ category_id not category
+            'ProductName' => 'RED HORSE',
+            'category_id' => $alcohols->id,  // ✅ category_id not category
             'weight'      => 1.5,
             'unit'        => 'kg',
             'stock'       => 50,

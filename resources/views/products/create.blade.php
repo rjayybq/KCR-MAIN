@@ -13,9 +13,7 @@
                     <label for="ProductName" class="form-label fw-semibold">Product Name</label>
                     <input type="text" name="ProductName" class="form-control @error('ProductName') is-invalid @enderror"
                            value="{{ old('ProductName') }}" required>
-                    @error('ProductName')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    @error('ProductName') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 {{-- Category --}}
@@ -29,33 +27,7 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('category_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- Weight & Unit --}}
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="weight" class="form-label fw-semibold">Weight</label>
-                        <input type="number" step="0.01" name="weight" 
-                               class="form-control @error('weight') is-invalid @enderror"
-                               value="{{ old('weight') }}">
-                        @error('weight')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="unit" class="form-label fw-semibold">Unit</label>
-                        <select name="unit" class="form-select @error('unit') is-invalid @enderror">
-                            <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>kg</option>
-                            <option value="g" {{ old('unit') == 'g' ? 'selected' : '' }}>g</option>
-                            <option value="lb" {{ old('unit') == 'lb' ? 'selected' : '' }}>lb</option>
-                        </select>
-                        @error('unit')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 {{-- Stock --}}
@@ -63,29 +35,31 @@
                     <label for="stock" class="form-label fw-semibold">Stock</label>
                     <input type="number" name="stock" class="form-control @error('stock') is-invalid @enderror"
                            value="{{ old('stock') }}" required>
-                    @error('stock')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    @error('stock') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 {{-- Price --}}
                 <div class="mb-3">
                     <label for="price" class="form-label fw-semibold">Price (₱)</label>
-                    <input type="number" step="0.01" name="price" 
+                    <input type="number" step="0.01" name="price"
                            class="form-control @error('price') is-invalid @enderror"
                            value="{{ old('price') }}" required>
-                    @error('price')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    @error('price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                {{-- Expiration Date --}}
+                <div class="mb-3">
+                    <label for="expiration_date" class="form-label fw-semibold">Expiration Date</label>
+                    <input type="date" name="expiration_date" class="form-control @error('expiration_date') is-invalid @enderror"
+                           value="{{ old('expiration_date') }}">
+                    @error('expiration_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 {{-- Product Image --}}
                 <div class="mb-3">
                     <label for="image" class="form-label fw-semibold">Product Image</label>
                     <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
-                    @error('image')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 {{-- Buttons --}}

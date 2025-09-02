@@ -13,9 +13,18 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        Category::create(['name' => 'Vegetables']);
-        Category::create(['name' => 'Fruits']);
-        Category::create(['name' => 'Grains']);
+         $categories = [
+        'Appetizers / Pulutan',
+        'Main Dishes',
+        'Pasta & Pizza',
+        'Snacks / Bar Chow',
+        'Alcoholic Beverages',
+        'Cocktails',
+        'Non-Alcoholic Drinks',
+    ];
 
+    foreach ($categories as $cat) {
+        Category::firstOrCreate(['name' => $cat]);
+    }
     }
 }

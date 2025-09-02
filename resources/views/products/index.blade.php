@@ -21,36 +21,48 @@
         </div>
     @endif
 
-    <div class="row g-4">
-        @forelse ($products as $product)
-            <div class="col-md-6 col-lg-4 col-xl-3">
-                <div class="card shadow-sm h-100 border-0">
-                    <!-- Product Image -->
-                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x200?text=No+Image' }}"
-                         class="card-img-top" alt="{{ $product->ProductName }}" style="height:200px; object-fit:cover;">
+    <!-- Group Products by Category -->
+    @php
+        $groupedProducts = $products->groupBy(fn($p) => $p->category->name ?? 'Uncategorized');
+    @endphp
 
-                    <div class="card-body d-flex flex-column">
-                        <!-- Product Info -->
-                        <h5 class="card-title fw-bold text-success">{{ $product->ProductName }}</h5>
-                        <p class="mb-1"><strong>Category:</strong> {{ $product->category->name ?? 'N/A' }}</p>
-                        <p class="mb-1"><strong>Weight:</strong> {{ $product->weight . " " . $product->unit }}</p>
-                        <p class="mb-1"><strong>Stock:</strong> {{ $product->stock }}</p>
-                        <p class="fw-bold text-dark">₱{{ number_format($product->price, 2) }}</p>
+    <div class="mb-4 d-flex flex-wrap gap-2">
+        @foreach($groupedProducts as $categoryName => $categoryProducts)
+            <a href="#category-{{ Str::slug($categoryName) }}" class="btn btn-outline-success">
+                <i class="bi bi-list"></i> {{ $categoryName }}
+            </a>
+        @endforeach
+    </div>
 
-                        <!-- Action Buttons -->
-                        <div class="mt-auto">
-                            <!-- Order Form -->
-                            <form action="{{ route('products.order', $product->id) }}" method="POST" class="d-flex gap-2 mb-2">
-                                @csrf
-                                <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}"
-                                       class="form-control form-control-sm" style="width:70px;">
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="bi bi-cart-plus"></i> Order
-                                </button>
-                            </form>
+    @foreach($groupedProducts as $categoryName => $categoryProducts)
+        <h3 id="category-{{ Str::slug($categoryName) }}" class="mt-4 mb-3 fw-bold text-success border-bottom pb-2">
+            {{ $categoryName }}
+        </h3>
 
-                            <!-- Edit & Delete -->
-                            <div class="d-flex gap-2">
+        <div class="row g-4">
+            @foreach ($categoryProducts as $product)
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card shadow-sm h-100 border-0">
+                        <!-- Product Image -->
+                        <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x200?text=No+Image' }}"
+                             class="card-img-top" alt="{{ $product->ProductName }}" style="height:200px; object-fit:cover;">
+
+                        <div class="card-body d-flex flex-column">
+                            <!-- Product Info -->
+                            <h5 class="card-title fw-bold text-success">{{ $product->ProductName }}</h5>
+                            <p class="mb-1"><strong>Weight:</strong> {{ $product->weight . " " . $product->unit }}</p>
+                            <p class="mb-1"><strong>Stock:</strong> {{ $product->stock }}</p>
+                            <p class="mb-1"><strong>Expiration:</strong> 
+                                @if($product->expiration_date)
+                                    {{ \Carbon\Carbon::parse($product->expiration_date)->format('M d, Y') }}
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </p>
+                            <p class="fw-bold text-dark">₱{{ number_format($product->price, 2) }}</p>
+
+                            <!-- Action Buttons -->
+                            <div class="mt-auto d-flex gap-2">
                                 <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning btn-sm w-50">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
@@ -67,13 +79,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        @empty
-            <div class="col-12">
-                <div class="alert alert-warning text-center">No products available.</div>
-            </div>
-        @endforelse
-    </div>
+            @endforeach
+        </div>
+    @endforeach
 
     <!-- Pagination -->
     <div class="d-flex justify-content-center mt-4">

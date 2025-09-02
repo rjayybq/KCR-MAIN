@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app1')
 
 @section('content')
 <h1 class="text-success fw-bold display-5 mb-4">Cashier Order Dashboard</h1>

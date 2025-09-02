@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->decimal('price', 10, 2);
             $table->string('image')->nullable(); // to store image path
+            $table->date('expiration_date')->nullable(); 
             $table->timestamps();
         });
     }
