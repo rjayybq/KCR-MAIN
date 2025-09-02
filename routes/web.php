@@ -75,6 +75,13 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     // Cashier purchase history (own handled purchases)
     Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
         ->name('cashier.purchaseHistory');
+    
+    // Cart
+    Route::post('/cashier/cart/add/{product}', [CashierDashboardController::class, 'addToCart'])->name('cashier.cart.add');
+    Route::get('/cashier/cart', [CashierDashboardController::class, 'viewCart'])->name('cashier.cart.view');
+    Route::post('/cashier/cart/checkout', [CashierDashboardController::class, 'checkout'])->name('cashier.cart.checkout');
+    Route::delete('/cashier/cart/remove/{id}', [CashierDashboardController::class, 'removeFromCart'])->name('cashier.cart.remove');
+    Route::delete('/cashier/cart/clear', [CashierDashboardController::class, 'clearCart'])->name('cashier.cart.clear');
 });
 
 
