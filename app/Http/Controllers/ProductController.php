@@ -72,22 +72,26 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'ProductName'      => 'required|string|max:255',
-            'category_id'      => 'required|exists:categories,id',
-            'stock'            => 'required|integer|min:0',
-            'price'            => 'required|numeric|min:0',
-            'expiration_date'  => 'nullable|date',
-            'image'            => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'ProductName'     => 'required|string|max:255',
+            'category_id'     => 'required|exists:categories,id',
+            'stock'           => 'required|integer|min:0',
+            'price'           => 'required|numeric|min:0',
+            'expiration_date' => 'nullable|date',
+            'image'           => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
+        // ✅ Store the old stock before updating
+        $oldStock = $product->stock;
+
+        // ✅ Handle image update
         if ($request->hasFile('image')) {
             if ($product->image && Storage::disk('public')->exists($product->image)) {
                 Storage::disk('public')->delete($product->image);
             }
-
             $product->image = $request->file('image')->store('products', 'public');
         }
 
+        // ✅ Update product
         $product->update([
             'ProductName'     => $request->ProductName,
             'category_id'     => $request->category_id,
@@ -97,19 +101,28 @@ class ProductController extends Controller
             'image'           => $product->image,
         ]);
 
+        // ✅ Compare old vs new stock
         if ($request->stock > $oldStock) {
+            // Stock In
             Stock::create([
                 'product_id' => $product->id,
                 'type'       => 'in',
                 'quantity'   => $request->stock - $oldStock,
                 'date'       => now()->toDateString(),
             ]);
+        } elseif ($request->stock < $oldStock) {
+            // Stock Out
+            Stock::create([
+                'product_id' => $product->id,
+                'type'       => 'out',
+                'quantity'   => $oldStock - $request->stock,
+                'date'       => now()->toDateString(),
+            ]);
         }
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
-
-        
     }
+
 
     // Delete product
     public function destroy(Product $product)
