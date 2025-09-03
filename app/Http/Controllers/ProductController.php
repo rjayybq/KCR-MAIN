@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stock;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ class ProductController extends Controller
     // Show all products
     public function index()
     {
-        $products = Product::with('category')->paginate(10);
+        $products = Product::with('category')->paginate(12);
         return view('products.index', compact('products'));
     }
 
@@ -40,13 +41,21 @@ class ProductController extends Controller
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
-        Product::create([
-            'ProductName'     => $request->ProductName,
-            'category_id'     => $request->category_id,
-            'stock'           => $request->stock,
-            'price'           => $request->price,
-            'expiration_date' => $request->expiration_date,
-            'image'           => $imagePath,
+        $product = Product::create([
+            'ProductName'    => $request->ProductName,
+            'category_id'    => $request->category_id,
+            'stock'          => $request->stock,
+            'price'          => $request->price,
+            'expiration_date'=> $request->expiration_date,
+            'image'          => $imagePath,
+        ]);
+
+        // Record stock in
+        Stock::create([
+            'product_id' => $product->id,
+            'type'       => 'in',
+            'quantity'   => $request->stock,
+            'date'       => now()->toDateString(),
         ]);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
@@ -88,7 +97,18 @@ class ProductController extends Controller
             'image'           => $product->image,
         ]);
 
+        if ($request->stock > $oldStock) {
+            Stock::create([
+                'product_id' => $product->id,
+                'type'       => 'in',
+                'quantity'   => $request->stock - $oldStock,
+                'date'       => now()->toDateString(),
+            ]);
+        }
+
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
+
+        
     }
 
     // Delete product

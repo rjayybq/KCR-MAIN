@@ -12,7 +12,7 @@ class Purchase extends Model
     protected $fillable = [
         'user_id',
         'product_id',
-        'cashier_id',   // ✅ keep this
+        'cashier_id',   // ✅ add this
         'quantity',
         'total_price',
     ];

@@ -7,9 +7,8 @@
         <table class="table table-bordered table-hover align-middle text-center">
             <thead class="bg-success text-white">
                 <tr>
-                    <th>#</th>
+                    <th>No.</th>
                     <th>Customer</th>
-                    <th>Email</th>
                     <th>Product</th>
                     <th>Quantity</th>
                     <th>Total Price</th>
@@ -22,7 +21,6 @@
                 <tr>
                     <td>{{ $purchase->id }}</td>
                     <td>{{ $purchase->customer_name }}</td>
-                    <td>{{ $purchase->customer_email ?? 'N/A' }}</td>
                     <td>{{ $purchase->product->ProductName ?? 'N/A' }}</td>
                     <td>{{ $purchase->quantity }}</td>
                     <td>₱{{ number_format($purchase->total_price, 2) }}</td>

@@ -26,6 +26,7 @@
         $groupedProducts = $products->groupBy(fn($p) => $p->category->name ?? 'Uncategorized');
     @endphp
 
+    
     <div class="mb-4 d-flex flex-wrap gap-2">
         @foreach($groupedProducts as $categoryName => $categoryProducts)
             <a href="#category-{{ Str::slug($categoryName) }}" class="btn btn-outline-success">

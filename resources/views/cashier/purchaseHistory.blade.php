@@ -1,43 +1,79 @@
 @extends('layouts.app1')
 
 @section('content')
-    <h1 class="text-success fw-bold display-5 ms-3 mb-4">Cashier Purchase History</h1>
+    <h1 class="text-success fw-bold display-5 ms-3 mb-4">💰 My Sales & Purchase History</h1>
 
-    <div class="table-responsive shadow rounded">
-        <table class="table table-bordered table-hover align-middle text-center mb-0">
-            <thead class="bg-success text-white">
-                <tr>
-                    <th>#</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Total Price</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($purchases as $purchase)
-                    <tr>
-                        <td>{{ $purchase->id }}</td>
-                        <td>{{ $purchase->product->ProductName }}</td>
-                        <td>{{ $purchase->quantity }}</td>
-                        <td>₱{{ number_format($purchase->total_price, 2) }}</td>
-                        <td>{{ $purchase->created_at->format('M d, Y h:i A') }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No purchases found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="5" class="p-3">
-                        <div class="d-flex justify-content-center">
-                            {{ $purchases->links('pagination::bootstrap-5') }}
-                        </div>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+    <!-- Income Summary -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <h6 class="fw-bold text-muted">Today's Income</h6>
+                    <h2 class="fw-bold text-success">₱{{ number_format($todayIncome ?? 0, 2) }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <h6 class="fw-bold text-muted">This Month's Income</h6>
+                    <h2 class="fw-bold text-success">₱{{ number_format($monthIncome ?? 0, 2) }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <h6 class="fw-bold text-muted">Total Sales</h6>
+                    <h2 class="fw-bold text-success">₱{{ number_format($totalSales ?? 0, 2) }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="fw-bold text-success mb-3">
+                <i class="fa-solid fa-receipt me-2"></i> My Purchase Records
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center mb-0">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Total Price</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($purchases as $purchase)
+                            <tr>
+                                <td>{{ $purchase->id }}</td>
+                                <td>{{ $purchase->customer_name }}</td>
+                                <td>{{ $purchase->product->ProductName ?? 'N/A' }}</td>
+                                <td>{{ $purchase->quantity }}</td>
+                                <td class="fw-bold text-dark">₱{{ number_format($purchase->total_price, 2) }}</td>
+                                <td>{{ $purchase->created_at->format('M d, Y h:i A') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No purchases found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-3">
+                {{ $purchases->links('pagination::bootstrap-5') }}
+            </div>
+        </div>
     </div>
 @endsection

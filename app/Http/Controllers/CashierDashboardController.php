@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Order;
+use App\Models\Stock;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
+
 class CashierDashboardController extends Controller
 {
+    // ✅ Show cashier dashboard with products + cart
     public function index(Request $request)
     {
         $query = Product::with('category');
@@ -45,7 +49,7 @@ class CashierDashboardController extends Controller
         return back()->with('success', $product->ProductName . ' added to cart!');
     }
 
-    // ✅ View cart
+    // ✅ View cart (separate view if needed)
     public function viewCart()
     {
         $cart = Session::get('cart', []);
@@ -59,13 +63,13 @@ class CashierDashboardController extends Controller
             'customer_name' => 'required|string|max:255',
         ]);
 
-        $cart = Session::get('cart', []);
+        $cart = session()->get('cart', []);
 
         if (empty($cart)) {
             return back()->with('error', 'Cart is empty!');
         }
 
-        foreach ($cart as $item) {
+       foreach ($cart as $item) {
             $product = Product::find($item['product_id']);
             if ($product && $product->stock >= $item['quantity']) {
                 // Save order
@@ -79,30 +83,65 @@ class CashierDashboardController extends Controller
 
                 // Decrease stock
                 $product->decrement('stock', $item['quantity']);
+
+                // Record stock out
+                Stock::create([
+                    'product_id' => $product->id,
+                    'type'       => 'out',
+                    'quantity'   => $item['quantity'],
+                    'date'       => now()->toDateString(),
+                ]);
             }
         }
 
-        // Clear cart after checkout
-        Session::forget('cart');
+        // Clear cart
+        session()->forget('cart');
 
         return redirect()->route('cashier.dashboard')->with('success', 'Order placed successfully!');
     }
 
-    // Remove single item
+    // ✅ Remove single item
     public function removeFromCart($id)
     {
         $cart = session()->get('cart', []);
-        if(isset($cart[$id])) {
+        if (isset($cart[$id])) {
             unset($cart[$id]);
             session()->put('cart', $cart);
         }
         return back()->with('success', 'Item removed from cart.');
     }
 
-    // Clear all items
+    // ✅ Clear all items
     public function clearCart()
     {
         session()->forget('cart');
         return back()->with('success', 'Cart cleared.');
     }
+
+   public function purchaseHistory(Request $request)
+    {
+        $cashierId = Auth::id(); // logged-in cashier
+        
+        $purchases = Order::with('product')
+            ->where('cashier_id', $cashierId)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        $todayIncome = Order::where('cashier_id', $cashierId)
+            ->whereDate('created_at', today())
+            ->sum('total_price');
+
+        $monthIncome = Order::where('cashier_id', $cashierId)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('total_price');
+
+        $totalSales = Order::where('cashier_id', $cashierId)->sum('total_price');
+
+        return view('cashier.purchaseHistory', compact(
+            'purchases', 'todayIncome', 'monthIncome', 'totalSales'
+        ));
+    }
+
 }
+

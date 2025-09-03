@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stock;
+use App\Models\Product;
 use App\Models\Category;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
@@ -10,8 +12,18 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $inventories = Inventory::with('category')->paginate(10);
-        return view('inventories.index', compact('inventories'));
+        // Get all products
+        $products = Product::all();
+
+        // Stock in and out
+        $stocksIn = Stock::where('type', 'in')->get();
+        $stocksOut = Stock::where('type', 'out')->get();
+
+        return view('inventories.index', [
+            'products' => $products,
+            'stocksIn' => $stocksIn,
+            'stocksOut' => $stocksOut,
+        ]);
     }
 
         public function create()

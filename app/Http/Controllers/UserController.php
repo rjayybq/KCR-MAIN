@@ -109,7 +109,7 @@ class UserController extends Controller
                          ->with('success', 'User account removed successfully.');
     }
 
-        public function profile()
+    public function profile()
     {
         return view('profile.show', ['user' => auth()->user()]);
     }
@@ -143,5 +143,6 @@ class UserController extends Controller
         return back()->with('success', 'Profile updated successfully!');
     }
 
+    
             
 }

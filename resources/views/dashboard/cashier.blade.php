@@ -51,12 +51,12 @@
     <div class="col-md-6">
         <div class="row g-4">
             @foreach($products as $product)
-                <div class="col-md-6"> {{-- 2 per row, bigger cards --}}
+                <div class="col-md-6"> 
                     <div class="card shadow-sm h-100 border-0">
                         <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/400x300?text=No+Image' }}" 
                              class="card-img-top" 
                              alt="{{ $product->ProductName }}" 
-                             style="height:250px; object-fit:cover;"> {{-- bigger image --}}
+                             style="height:250px; object-fit:cover;"> 
 
                         <div class="card-body text-center d-flex flex-column">
                             <h4 class="fw-bold text-success">{{ $product->ProductName }}</h4>
@@ -84,7 +84,7 @@
     </div>
 
     <!-- Right: Cart -->
-    <div class="col-md-5">
+    <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Cart</h5>
