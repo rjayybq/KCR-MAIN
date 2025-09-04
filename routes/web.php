@@ -12,6 +12,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CashierProfileController;
+use App\Http\Controllers\CashierPurchaseController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\CashierDashboardController;
 
@@ -73,9 +74,10 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::post('/cashier/order/{product}', [CashierDashboardController::class, 'storeOrder'])->name('cashier.order');   
      
     // Cashier purchase history (own handled purchases)
-    Route::get('/cashier/purchase-history', [PurchaseController::class, 'cashierHistory'])
+    Route::get('/cashier/purchase-history', [CashierPurchaseController::class, 'index'])
         ->name('cashier.purchaseHistory');
-    
+    Route::post('/cashier/purchase', [CashierPurchaseController::class, 'store'])->name('cashier.purchase.store');
+        
     // Cart
     Route::post('/cashier/cart/add/{product}', [CashierDashboardController::class, 'addToCart'])->name('cashier.cart.add');
     Route::get('/cashier/cart', [CashierDashboardController::class, 'viewCart'])->name('cashier.cart.view');

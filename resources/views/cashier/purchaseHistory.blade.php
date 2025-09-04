@@ -37,7 +37,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-body">
             <h5 class="fw-bold text-success mb-3">
-                <i class="fa-solid fa-receipt me-2"></i> My Purchase Records
+                <i class="fa-solid fa-receipt me-2"></i> My Purchase Records ( {{ Auth::user()->name }})
             </h5>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle text-center mb-0">
@@ -63,7 +63,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No purchases found.</td>
+                                <td colspan="6" class="text-center text-muted">No purchases found for you.</td>
                             </tr>
                         @endforelse
                     </tbody>
