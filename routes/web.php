@@ -91,6 +91,9 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::post('/cashier/cart/checkout', [CashierDashboardController::class, 'checkout'])->name('cashier.cart.checkout');
     Route::delete('/cashier/cart/remove/{id}', [CashierDashboardController::class, 'removeFromCart'])->name('cashier.cart.remove');
     Route::delete('/cashier/cart/clear', [CashierDashboardController::class, 'clearCart'])->name('cashier.cart.clear');
+    Route::post('/cart/update', [CashierDashboardController::class, 'updateCartAjax'])->name('cashier.update.ajax');
+    Route::post('/cart/remove', [CashierDashboardController::class, 'removeCartAjax'])->name('cashier.remove.ajax');
+
 });
 
 

@@ -159,5 +159,62 @@ class CashierDashboardController extends Controller
         ));
     }
 
+    public function updateCartAjax(Request $request)
+    {
+        $cart = session()->get('cart', []);
+        $id = $request->id;
+        $action = $request->action;
+
+        if (!isset($cart[$id])) {
+            return response()->json(['error' => 'Product not found in cart.'], 404);
+        }
+
+        if ($action === 'increase') {
+            $cart[$id]['quantity']++;
+        } elseif ($action === 'decrease') {
+            if ($cart[$id]['quantity'] > 1) {
+                $cart[$id]['quantity']--;
+            } else {
+                unset($cart[$id]);
+            }
+        }
+
+        session()->put('cart', $cart);
+
+        // Recalculate totals
+        $grandTotal = 0;
+        $total = isset($cart[$id]) ? $cart[$id]['price'] * $cart[$id]['quantity'] : 0;
+        foreach ($cart as $c) {
+            $grandTotal += $c['price'] * $c['quantity'];
+        }
+
+        return response()->json([
+            'quantity' => $cart[$id]['quantity'] ?? 0,
+            'total' => number_format($total, 2),
+            'grandTotal' => number_format($grandTotal, 2),
+        ]);
+    }
+
+    public function removeCartAjax(Request $request)
+    {
+        $cart = session()->get('cart', []);
+        $id = $request->id;
+
+        if (isset($cart[$id])) {
+            unset($cart[$id]);
+        }
+
+        session()->put('cart', $cart);
+
+        $grandTotal = 0;
+        foreach ($cart as $c) {
+            $grandTotal += $c['price'] * $c['quantity'];
+        }
+
+        return response()->json([
+            'grandTotal' => number_format($grandTotal, 2),
+        ]);
+    }
+
 }
 

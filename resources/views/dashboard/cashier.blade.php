@@ -100,41 +100,41 @@
                 @if(empty($cart))
                     <p class="text-muted">No items in cart</p>
                 @else
-                    <table class="table table-sm align-middle">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>Product</th>
-                                <th>Qty</th>
+                                <th style="width:150px;">Qty</th>
                                 <th>Total</th>
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="cartTable">
                             @php $grandTotal = 0; @endphp
                             @foreach($cart as $item)
-                                @php $grandTotal += $item['price'] * $item['quantity']; @endphp
-                                <tr>
+                                @php $total = $item['price'] * $item['quantity']; $grandTotal += $total; @endphp
+                                <tr data-id="{{ $item['product_id'] }}">
                                     <td>{{ $item['name'] }}</td>
-                                    <td>{{ $item['quantity'] }}</td>
-                                    <td>₱{{ number_format($item['price'] * $item['quantity'], 2) }}</td>
                                     <td>
-                                        <form action="{{ route('cashier.cart.remove', $item['product_id']) }}" 
-                                              method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">✕</button>
-                                        </form>
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <button class="btn btn-sm btn-outline-danger update-cart" data-action="decrease">-</button>
+                                            <span class="px-3 quantity">{{ $item['quantity'] }}</span>
+                                            <button class="btn btn-sm btn-outline-success update-cart" data-action="increase">+</button>
+                                        </div>
+                                    </td>
+                                    <td class="total">₱{{ number_format($total, 2) }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger remove-cart">✕</button>
                                     </td>
                                 </tr>
                             @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr class="fw-bold">
-                                <td colspan="2">Grand Total</td>
-                                <td colspan="2">₱{{ number_format($grandTotal, 2) }}</td>
+                            <tr>
+                                <td colspan="2" class="fw-bold">Grand Total</td>
+                                <td colspan="2" class="fw-bold" id="grandTotal">₱{{ number_format($grandTotal, 2) }}</td>
                             </tr>
-                        </tfoot>
+                        </tbody>
                     </table>
+
 
                     <form action="{{ route('cashier.cart.checkout') }}" method="POST">
                         @csrf
@@ -150,3 +150,59 @@
     </div>
 </div>
 @endsection
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Update quantity
+    document.querySelectorAll(".update-cart").forEach(btn => {
+        btn.addEventListener("click", function () {
+            let tr = this.closest("tr");
+            let id = tr.dataset.id;
+            let action = this.dataset.action;
+
+            fetch("{{ route('cashier.update.ajax') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ id: id, action: action })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) return alert(data.error);
+
+                if (data.quantity > 0) {
+                    tr.querySelector(".quantity").textContent = data.quantity;
+                    tr.querySelector(".total").textContent = "₱" + data.total;
+                } else {
+                    tr.remove();
+                }
+                document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
+            });
+        });
+    });
+
+    // Remove item
+    document.querySelectorAll(".remove-cart").forEach(btn => {
+        btn.addEventListener("click", function () {
+            let tr = this.closest("tr");
+            let id = tr.dataset.id;
+
+            fetch("{{ route('cashier.remove.ajax') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tr.remove();
+                document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
+            });
+        });
+    });
+});
+</script>
