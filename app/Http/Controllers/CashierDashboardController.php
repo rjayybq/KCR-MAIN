@@ -135,29 +135,57 @@ class CashierDashboardController extends Controller
     }
 
    public function purchaseHistory(Request $request)
-    {
-        $cashierId = Auth::id(); // logged-in cashier
-        
-        $purchases = Order::with('product')
-            ->where('cashier_id', $cashierId)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+{
+    $cashierId = Auth::id(); // logged-in cashier
+    
+    $purchases = Order::with('product')
+        ->where('cashier_id', $cashierId);
 
-        $todayIncome = Order::where('cashier_id', $cashierId)
-            ->whereDate('created_at', today())
-            ->sum('total_price');
-
-        $monthIncome = Order::where('cashier_id', $cashierId)
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('total_price');
-
-        $totalSales = Order::where('cashier_id', $cashierId)->sum('total_price');
-
-        return view('cashier.purchaseHistory', compact(
-            'purchases', 'todayIncome', 'monthIncome', 'totalSales'
-        ));
+    // ✅ Apply date filter if provided
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $purchases->whereBetween('created_at', [
+            Carbon::parse($request->from_date)->startOfDay(),
+            Carbon::parse($request->to_date)->endOfDay()
+        ]);
     }
+
+    $purchases = $purchases->orderBy('created_at', 'desc')->paginate(10);
+
+    // ✅ Income Calculations (respecting date filters if applied)
+    $todayIncome = Order::where('cashier_id', $cashierId)
+        ->when($request->filled('from_date') && $request->filled('to_date'), function($q) use ($request) {
+            $q->whereBetween('created_at', [
+                Carbon::parse($request->from_date)->startOfDay(),
+                Carbon::parse($request->to_date)->endOfDay()
+            ]);
+        })
+        ->whereDate('created_at', today())
+        ->sum('total_price');
+
+    $monthIncome = Order::where('cashier_id', $cashierId)
+        ->when($request->filled('from_date') && $request->filled('to_date'), function($q) use ($request) {
+            $q->whereBetween('created_at', [
+                Carbon::parse($request->from_date)->startOfDay(),
+                Carbon::parse($request->to_date)->endOfDay()
+            ]);
+        })
+        ->whereMonth('created_at', now()->month)
+        ->whereYear('created_at', now()->year)
+        ->sum('total_price');
+
+    $totalSales = Order::where('cashier_id', $cashierId)
+        ->when($request->filled('from_date') && $request->filled('to_date'), function($q) use ($request) {
+            $q->whereBetween('created_at', [
+                Carbon::parse($request->from_date)->startOfDay(),
+                Carbon::parse($request->to_date)->endOfDay()
+            ]);
+        })
+        ->sum('total_price');
+
+    return view('cashier.purchaseHistory', compact(
+        'purchases', 'todayIncome', 'monthIncome', 'totalSales'
+    ));
+}
 
     public function updateCartAjax(Request $request)
     {

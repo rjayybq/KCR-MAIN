@@ -63,7 +63,7 @@
                     <i class="fa-solid fa-shop me-2"></i> Purchase History
                 </a>
             @elseif(auth()->user()->role === 'cashier')
-                <a href="{{ route('cashier.purchaseHistory') }}" 
+                <a href="{{ route('cashier.purchase.history') }}" 
                 class="nav-link text-white fw-semibold {{ request()->routeIs('cashier.purchaseHistory') ? 'active bg-success bg-opacity-50' : '' }}">
                     <i class="fa-solid fa-shop me-2"></i> My Sales
                 </a>

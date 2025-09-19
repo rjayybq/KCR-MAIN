@@ -33,11 +33,35 @@
         </div>
     </div>
 
+    @if($filterDate)
+    <div class="alert alert-info ms-3 me-3">
+            Showing sales for: <strong>{{ $filterDate->format('M d, Y') }}</strong>
+            (Monthly income based on {{ $filterDate->format('F Y') }})
+        </div>
+    @endif
+    <!-- Date Filter -->
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ route('cashier.purchase.history') }}" class="row g-3">
+                <div class="col-md-6">
+                    <label for="sales_date" class="form-label fw-bold text-success">Select Date</label>
+                    <input type="date" name="sales_date" id="sales_date" class="form-control"
+                        value="{{ request('sales_date') }}">
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fa-solid fa-filter me-1"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Purchase Table -->
     <div class="card shadow-sm border-0">
         <div class="card-body">
             <h5 class="fw-bold text-success mb-3">
-                <i class="fa-solid fa-receipt me-2"></i> My Purchase Records ( {{ Auth::user()->name }})
+                <i class="fa-solid fa-receipt me-2"></i> My Purchase Records ( {{ Auth::user()->name }} )
             </h5>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle text-center mb-0">
@@ -63,7 +87,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No purchases found for you.</td>
+                                <td colspan="6" class="text-center text-muted">No purchases found.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -72,7 +96,7 @@
 
             <!-- Pagination -->
             <div class="d-flex justify-content-center mt-3">
-                {{ $purchases->links('pagination::bootstrap-5') }}
+                {{ $purchases->appends(request()->query())->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>

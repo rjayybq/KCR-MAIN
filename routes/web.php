@@ -81,10 +81,15 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::post('/cashier/order/{product}', [CashierDashboardController::class, 'storeOrder'])->name('cashier.order');   
      
     // Cashier purchase history (own handled purchases)
-    Route::get('/cashier/purchase-history', [CashierPurchaseController::class, 'index'])
-        ->name('cashier.purchaseHistory');
+    // Route::get('/cashier/purchase-history', [CashierPurchaseController::class, 'index'])
+    //     ->name('cashier.purchaseHistory');
     Route::post('/cashier/purchase', [CashierPurchaseController::class, 'store'])->name('cashier.purchase.store');
-        
+//    Route::get('/cashier/purchase-history', [CashierPurchaseController::class, 'index'])
+//     ->name('cashier.purchaseHistory');
+    Route::get('/cashier/purchase-history', [CashierPurchaseController::class, 'index'])
+        ->name('cashier.purchase.history');
+
+
     // Cart
     Route::post('/cashier/cart/add/{product}', [CashierDashboardController::class, 'addToCart'])->name('cashier.cart.add');
     Route::get('/cashier/cart', [CashierDashboardController::class, 'viewCart'])->name('cashier.cart.view');
