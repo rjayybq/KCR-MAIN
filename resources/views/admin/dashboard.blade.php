@@ -1,17 +1,47 @@
 @extends('layouts.app')
 
 @section('content')
+
+    
+    <div class="d-flex justify-content-between align-items-center">
     <h1 class="text-success fw-bold display-5 ms-3">Dashboard</h1>
+
+    <!-- Notification Bell -->
+    <div class="dropdown me-4">
+            <button class="btn position-relative" style="background:none; border:none;" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-solid fa-bell fs-3 text-success"></i>
+                <!-- Badge -->
+                <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    0
+                </span>
+            </button>
+           <ul id="notificationDropdownMenu" 
+                class="dropdown-menu dropdown-menu-end shadow-lg p-2" 
+                aria-labelledby="notificationDropdown" 
+                style="width: 370px;"> 
+
+                <li class="dropdown-header fw-bold d-flex justify-content-between align-items-center">
+                    <span>Notifications</span>
+                    <a href="{{ route('notifications.index') }}" class="small text-success">View All</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+
+                <!-- Notifications will be loaded here by JS -->
+                <li><a class="dropdown-item text-muted">Loading...</a></li>
+            </ul>
+        </div>
+    </div>
+
     @auth
         <div class="text-center my-2">
-        @if(auth()->user()->role === 'admin')
-            <h4>Welcome {{ auth()->user()->name }}</h4>
-        @elseif(auth()->user()->role === 'cashier')
-            <h4>Welcome {{ auth()->user()->name }}</h4>
-        @else
-            <h4>Welcome User {{ auth()->user()->name }}</h4>
-        @endif
-    </div>
+            @if(auth()->user()->role === 'admin')
+                <h4>Welcome {{ auth()->user()->name }}</h4>
+            @elseif(auth()->user()->role === 'cashier')
+                <h4>Welcome {{ auth()->user()->name }}</h4>
+            @else
+                <h4>Welcome User {{ auth()->user()->name }}</h4>
+            @endif
+        </div>
     @endauth
 
 
@@ -26,7 +56,7 @@
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalProducts) }}</h1>
-                        <h2 class="text-light fw-bold fs-4 mb-0">Total Product</h2>
+                        <h2 class="text-light fw-bold fs-4 mb-0">Products</h2>
                     </div>
                     <i class="fa-solid fa-cart-shopping text-light fs-1"></i>
                 </div>
@@ -46,7 +76,7 @@
                     <div>
                         
                         <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalInventory) }}</h1>
-                        <h2 class="text-light fw-bold fs-4 mb-0">Total Inventory</h2>
+                        <h2 class="text-light fw-bold fs-4 mb-0">Inventories</h2>
                     </div>
                     <i class="fa-solid fa-warehouse text-light fs-1"></i>
                 </div>
@@ -66,7 +96,7 @@
                     <div>
                         
                         <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalAccounts) }}</h1>
-                        <h2 class="text-light fw-bold fs-4 mb-0">Total Account</h2>
+                        <h2 class="text-light fw-bold fs-4 mb-0">Accounts</h2>
                     </div>
                     <i class="fa-solid fa-circle-user text-light fs-1"></i>
                 </div>
@@ -86,7 +116,7 @@
                     <div>
                         
                         <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalPurchases) }}</h1>
-                        <h2 class="text-light fw-bold fs-4 mb-0">Total Purchase</h2>
+                        <h2 class="text-light fw-bold fs-4 mb-0">Purchases</h2>
                     </div>
                     <i class="fa-solid fa-shop text-light fs-1"></i>
                 </div>
@@ -116,4 +146,63 @@
     fetchDashboardStats();
     // Refresh every 5 seconds
     setInterval(fetchDashboardStats, 5000);
+</script>
+
+<script>
+   async function fetchNotifications() {
+    try {
+        let response = await fetch("{{ route('notifications.unread') }}");
+        let data = await response.json();
+
+        // Update badge
+        document.getElementById("notificationBadge").innerText = data.count;
+
+        // Dropdown container
+        let dropdown = document.getElementById("notificationDropdownMenu");
+
+        dropdown.innerHTML = `
+            <li class="dropdown-header fw-bold d-flex justify-content-between align-items-center">
+                <span>Notifications</span>
+                <a href="{{ route('notifications.index') }}" class="small text-success">View All</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+        `;
+
+        if (data.notifications.length === 0) {
+            dropdown.innerHTML += `<li><a class="dropdown-item text-muted">No new notifications</a></li>`;
+        } else {
+            data.notifications.forEach(notif => {
+                // Shorten text (40 chars max)
+                let shortMsg = notif.message.length > 40 
+                    ? notif.message.substring(0, 40) + "..." 
+                    : notif.message;
+
+                dropdown.innerHTML += `
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <i class="fa-solid fa-bell text-warning me-2"></i>
+                            <span>${shortMsg}</span>
+                        </a>
+                    </li>`;
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching notifications:", error);
+    }
+}
+
+    // Mark notification as read
+    async function markAsRead(id) {
+        await fetch(`/notifications/read/${id}`, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            }
+        });
+        fetchNotifications(); // refresh after marking read
+    }
+
+    // Fetch immediately + every 5 seconds
+    fetchNotifications();
+    setInterval(fetchNotifications, 5000);
 </script>

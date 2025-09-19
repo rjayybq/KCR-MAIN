@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Stock;
 use App\Models\Product;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -69,7 +70,7 @@ class CashierDashboardController extends Controller
             return back()->with('error', 'Cart is empty!');
         }
 
-       foreach ($cart as $item) {
+        foreach ($cart as $item) {
             $product = Product::find($item['product_id']);
             if ($product && $product->stock >= $item['quantity']) {
                 // Save order
@@ -91,6 +92,21 @@ class CashierDashboardController extends Controller
                     'quantity'   => $item['quantity'],
                     'date'       => now()->toDateString(),
                 ]);
+
+                // ✅ Low stock notification (if ≤ 5)
+                if ($product->stock <= 5) {
+                    $existing = Notification::where('product_id', $product->id)
+                        ->where('is_read', false)
+                        ->first();
+
+                    if (!$existing) {
+                        Notification::create([
+                            'product_id' => $product->id,
+                            'title'      => 'Low Stock Alert',
+                            'message'    => "⚠️ Product '{$product->ProductName}' is running low. Only {$product->stock} left after cashier order.",
+                        ]);
+                    }
+                }
             }
         }
 

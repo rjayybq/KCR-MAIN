@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CashierProfileController;
 use App\Http\Controllers\CashierPurchaseController;
@@ -61,6 +62,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Profile
     Route::get('/profile', [UserController::class, 'show'])->name('profile.show');
     Route::put('/profile', [UserController::class, 'update'])->name('profile.update');
+
+    Route::get('/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+    Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
 });
 
 
