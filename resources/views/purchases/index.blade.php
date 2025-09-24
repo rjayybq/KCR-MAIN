@@ -17,26 +17,34 @@
                 </tr>
             </thead>
             <tbody>
-          @forelse($purchases as $purchase)
-                <tr>
-                    <td>{{ $purchase->id }}</td>
-                    <td>{{ $purchase->customer_name }}</td>
-                    <td>{{ $purchase->product->ProductName ?? 'N/A' }}</td>
-                    <td>{{ $purchase->quantity }}</td>
-                    <td>₱{{ number_format($purchase->total_price, 2) }}</td>
-                    <td>{{ $purchase->cashier->name ?? 'N/A' }}</td>
-                    <td>{{ $purchase->created_at->format('M d, Y h:i A') }}</td>
-                </tr>
+                @php $lastCustomer = null; @endphp
+                @forelse($purchases as $purchase)
+                    <tr>
+                        <td>{{ $purchase->id }}</td>
+
+                        {{-- Only show customer name if it's different from last row --}}
+                        @if($lastCustomer !== $purchase->customer_name)
+                            <td class="fw-bold">{{ $purchase->customer_name }}</td>
+                            @php $lastCustomer = $purchase->customer_name; @endphp
+                        @else
+                            <td></td>
+                        @endif
+
+                        <td>{{ $purchase->product->ProductName ?? 'N/A' }}</td>
+                        <td>{{ $purchase->quantity }}</td>
+                        <td>₱{{ number_format($purchase->total_price, 2) }}</td>
+                        <td>{{ $purchase->cashier->name ?? 'N/A' }}</td>
+                        <td>{{ $purchase->created_at->format('M d, Y h:i A') }}</td>
+                    </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-muted">No purchase records found.</td>
+                        <td colspan="7" class="text-muted">No purchase records found.</td>
                     </tr>
-            @endforelse
-
+                @endforelse
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="8" class="p-3">
+                    <td colspan="7" class="p-3">
                         <div class="d-flex justify-content-center">
                             {{ $purchases->links('pagination::bootstrap-5') }}
                         </div>

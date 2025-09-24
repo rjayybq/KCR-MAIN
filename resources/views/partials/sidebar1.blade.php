@@ -72,7 +72,7 @@
 
         @auth
             <li class="nav-item">
-                <a href="{{ route('profile') }}" 
+                <a href="{{ route('cashier.profile') }}" 
                    class="nav-link text-white fw-semibold {{ request()->routeIs('profile*') ? 'active bg-success bg-opacity-50' : '' }}">
                     <i class="fa-solid fa-user me-2"></i> Profile
                 </a>

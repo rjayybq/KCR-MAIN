@@ -68,6 +68,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+
+
+    
 });
 
 
@@ -99,10 +102,17 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::post('/cart/update', [CashierDashboardController::class, 'updateCartAjax'])->name('cashier.update.ajax');
     Route::post('/cart/remove', [CashierDashboardController::class, 'removeCartAjax'])->name('cashier.remove.ajax');
 
+
+   
 });
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('profile', [UserController::class, 'profile'])->name('profile');
+   Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+});
+
+Route::prefix('cashier')->middleware(['auth', 'role:cashier'])->group(function () {
+    Route::get('/profile', [CashierProfileController::class, 'profile'])->name('cashier.profile');
+    Route::put('/profile', [CashierProfileController::class, 'updateProfile'])->name('cashier.profile.update');
 });
