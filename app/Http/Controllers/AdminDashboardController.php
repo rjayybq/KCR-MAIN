@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ingredient;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
@@ -14,13 +15,15 @@ class AdminDashboardController extends Controller
         $totalProducts  = Product::count();        // total products
         $totalInventory = Product::sum('stock');   // total stock
         $totalAccounts  = User::count();           // total users
-        $totalPurchases = Order::count();          // total purchases
+        $totalPurchases = Order::count();  
+        $totalIngredientStock = Ingredient::sum('stock');       // total purchases
 
         return view('admin.dashboard', compact(
             'totalProducts',
             'totalInventory',
             'totalAccounts',
-            'totalPurchases'
+            'totalPurchases',
+            'totalIngredientStock'
         ));
     }
 

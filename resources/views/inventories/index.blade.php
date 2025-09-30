@@ -23,41 +23,43 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($products as $product)
+
+                {{-- ✅ Loop ingredients --}}
+                @forelse($ingredients as $ingredient)
                     <tr>
                         {{-- Stock In --}}
                         <td>
-                            @foreach($stocksIn->where('product_id', $product->id) as $in)
+                            @foreach($stocksIn->where('ingredient_id', $ingredient->id) as $in)
                                 {{ $in->date }} <br>
                             @endforeach
                         </td>
-                        <td>{{ $product->ProductName }}</td>
+                        <td>{{ $ingredient->name }}</td>
                         <td>
-                            @foreach($stocksIn->where('product_id', $product->id) as $in)
+                            @foreach($stocksIn->where('ingredient_id', $ingredient->id) as $in)
                                 {{ $in->quantity }} <br>
                             @endforeach
                         </td>
 
                         {{-- Stock Out --}}
                         <td>
-                            @foreach($stocksOut->where('product_id', $product->id) as $out)
+                            @foreach($stocksOut->where('ingredient_id', $ingredient->id) as $out)
                                 {{ $out->date }} <br>
                             @endforeach
                         </td>
-                        <td>{{ $product->ProductName }}</td>
+                        <td>{{ $ingredient->name }}</td>
                         <td>
-                            @foreach($stocksOut->where('product_id', $product->id) as $out)
+                            @foreach($stocksOut->where('ingredient_id', $ingredient->id) as $out)
                                 {{ $out->quantity }} <br>
                             @endforeach
                         </td>
 
-                        {{-- Balance (from products.stock column) --}}
-                        <td>{{ $product->ProductName }}</td>
-                        <td>{{ $product->stock }}</td>
+                        {{-- Balance --}}
+                        <td>{{ $ingredient->name }}</td>
+                        <td>{{ $ingredient->stock }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-muted">No products found.</td>
+                        <td colspan="8" class="text-muted">No ingredients found.</td>
                     </tr>
                 @endforelse
             </tbody>

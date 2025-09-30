@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-        //    $table->dropColumn('customer_email');
+        Schema::create('product_ingredient', function (Blueprint $table) {
+            $table->id();
+             $table->timestamps();
         });
     }
 
@@ -21,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-           $table->string('customer_email')->nullable();
-        });
+        Schema::dropIfExists('product_ingredient');
     }
 };

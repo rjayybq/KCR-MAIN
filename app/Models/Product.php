@@ -32,4 +32,12 @@ class Product extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+
+    public function ingredients()
+    {
+        return $this->belongsToMany(Ingredient::class, 'ingredient_product')
+                    ->withPivot('quantity')
+                    ->withTimestamps();
+    }
+
 }

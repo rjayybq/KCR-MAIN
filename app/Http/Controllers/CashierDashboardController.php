@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Stock;
 use App\Models\Product;
 use App\Models\Notification;
+use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -115,6 +116,10 @@ class CashierDashboardController extends Controller
 
         return redirect()->route('cashier.dashboard')->with('success', 'Order placed successfully!');
     }
+
+
+
+
 
     // ✅ Remove single item
     public function removeFromCart($id)

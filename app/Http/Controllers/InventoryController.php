@@ -5,25 +5,29 @@ namespace App\Http\Controllers;
 use App\Models\Stock;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Purchase;
 use App\Models\Inventory;
+use App\Models\Ingredient;
 use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {
+
+//     public function index()
+// {
+//    $purchases = Purchase::with(['product.ingredients', 'cashier'])->latest()->paginate(10);
+//     return view('inventories.index', compact('purchases'));
+// }
+
     public function index()
     {
-        // Get all products
-        $products = Product::all();
+       
+        $ingredients = Ingredient::all();
 
-        // Stock in and out
         $stocksIn = Stock::where('type', 'in')->get();
         $stocksOut = Stock::where('type', 'out')->get();
 
-        return view('inventories.index', [
-            'products' => $products,
-            'stocksIn' => $stocksIn,
-            'stocksOut' => $stocksOut,
-        ]);
+        return view('inventories.index', compact( 'ingredients', 'stocksIn', 'stocksOut'));
     }
 
         public function create()

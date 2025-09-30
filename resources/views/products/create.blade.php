@@ -1,77 +1,135 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="text-success fw-bold display-5 mb-4">Create Product</h1>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
+<h1 class="fw-bold text-success">Create Product</h1>
 
-                {{-- Product Name --}}
-                <div class="mb-3">
-                    <label for="ProductName" class="form-label fw-semibold">Product Name</label>
-                    <input type="text" name="ProductName" class="form-control @error('ProductName') is-invalid @enderror"
-                           value="{{ old('ProductName') }}" required>
-                    @error('ProductName') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+<form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    
+    <!-- Product Info -->
+    <div class="mb-3">
+        <label class="form-label">Product Name</label>
+        <input type="text" name="ProductName" class="form-control" required>
+    </div>
 
-                {{-- Category --}}
-                <div class="mb-3">
-                    <label for="category_id" class="form-label fw-semibold">Category</label>
-                    <select name="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
-                        <option value="">-- Select Category --</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+    <div class="mb-3">
+        <label class="form-label">Category</label>
+        <select name="category_id" class="form-select" required>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+            @endforeach
+        </select>
+    </div>
 
-                {{-- Stock --}}
-                <div class="mb-3">
-                    <label for="stock" class="form-label fw-semibold">Stock</label>
-                    <input type="number" name="stock" class="form-control @error('stock') is-invalid @enderror"
-                           value="{{ old('stock') }}" required>
-                    @error('stock') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+    <div class="mb-3">
+        <label class="form-label">Stock</label>
+        <input type="number" name="stock" class="form-control" required>
+    </div>
 
-                {{-- Price --}}
-                <div class="mb-3">
-                    <label for="price" class="form-label fw-semibold">Price (₱)</label>
-                    <input type="number" step="0.01" name="price"
-                           class="form-control @error('price') is-invalid @enderror"
-                           value="{{ old('price') }}" required>
-                    @error('price') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+    <div class="mb-3">
+        <label class="form-label">Price</label>
+        <input type="number" step="0.01" name="price" class="form-control" required>
+    </div>
 
-                {{-- Expiration Date --}}
-                <div class="mb-3">
-                    <label for="expiration_date" class="form-label fw-semibold">Expiration Date</label>
-                    <input type="date" name="expiration_date" class="form-control @error('expiration_date') is-invalid @enderror"
-                           value="{{ old('expiration_date') }}">
-                    @error('expiration_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+    <div class="mb-3">
+        <label class="form-label">Expiration Date</label>
+        <input type="date" name="expiration_date" class="form-control">
+    </div>
 
-                {{-- Product Image --}}
-                <div class="mb-3">
-                    <label for="image" class="form-label fw-semibold">Product Image</label>
-                    <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
-                    @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+    <div class="mb-3">
+        <label class="form-label">Image</label>
+        <input type="file" name="image" class="form-control">
+    </div>
 
-                {{-- Buttons --}}
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ route('products.index') }}" class="btn btn-secondary">
-                        <i class="bi bi-x-circle"></i> Cancel
-                    </a>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Save Product
-                    </button>
-                </div>
-            </form>
+    <hr>
+
+   <!-- Ingredients Section -->
+<div class="mb-4 card shadow-sm border-0">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-basket-fill me-2"></i> Raw Meats / Ingredients</h5>
+        <button type="button" id="add-row" class="btn btn-light btn-sm rounded-circle" title="Add Ingredient">
+            <i class="bi bi-plus-circle text-success fs-5"></i>
+        </button>
+    </div>
+
+    <div class="card-body" id="ingredient-wrapper">
+        <div class="row mb-2 ingredient-row">
+            <div class="col-md-4">
+                <input type="text" name="ingredients[0][name]" class="form-control"
+                       placeholder="Enter ingredient name" required>
+            </div>
+            <div class="col-md-3">
+                <input type="number" step="any" name="ingredients[0][stock]" class="form-control"
+                       placeholder="Stock qty" min="0" required>
+            </div>
+            <div class="col-md-3">
+                <select name="ingredients[0][unit]" class="form-select" required>
+                    <option value="pcs">pcs</option>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="L">L</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex">
+                <button type="button" class="btn btn-outline-danger remove-row rounded-circle" title="Remove">
+                    <i class="bi bi-trash fs-5"></i>
+                </button>
+            </div>
         </div>
     </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const wrapper = document.getElementById('ingredient-wrapper');
+    const addBtn  = document.getElementById('add-row');
+    let rowIndex = wrapper.querySelectorAll('.ingredient-row').length;
+
+    // Add row event
+    addBtn.addEventListener('click', function () {
+        const row = document.createElement('div');
+        row.className = 'row mb-2 ingredient-row';
+        row.innerHTML = `
+            <div class="col-md-4">
+                <input type="text" name="ingredients[${rowIndex}][name]" class="form-control"
+                       placeholder="Enter ingredient name" required>
+            </div>
+            <div class="col-md-3">
+                <input type="number" step="any" name="ingredients[${rowIndex}][stock]" class="form-control"
+                       placeholder="Stock qty" min="0" required>
+            </div>
+            <div class="col-md-3">
+                <select name="ingredients[${rowIndex}][unit]" class="form-select" required>
+                    <option value="pcs">pcs</option>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="L">L</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex">
+                <button type="button" class="btn btn-outline-danger remove-row rounded-circle" title="Remove">
+                    <i class="bi bi-trash fs-5"></i>
+                </button>
+            </div>
+        `;
+        wrapper.appendChild(row);
+        rowIndex++;
+    });
+
+    // Remove row event (delegation)
+    wrapper.addEventListener('click', function (e) {
+        const btn = e.target.closest('.remove-row');
+        if (btn) {
+            btn.closest('.ingredient-row').remove();
+        }
+    });
+});
+</script>
+@endpush
+
+
+    <button type="submit" class="btn btn-success mt-3">Save Product</button>
+</form>
 @endsection

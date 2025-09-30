@@ -75,7 +75,7 @@
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         
-                        <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalInventory) }}</h1>
+                        <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalIngredientStock) }}</h1>
                         <h2 class="text-light fw-bold fs-4 mb-0">Inventories</h2>
                     </div>
                     <i class="fa-solid fa-warehouse text-light fs-1"></i>

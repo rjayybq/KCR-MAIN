@@ -32,4 +32,8 @@ class Purchase extends Model
         return $this->belongsTo(User::class, 'cashier_id');
     }
 
+    public function ingredients()
+    {
+        return $this->product->ingredients();
+    }
 }
