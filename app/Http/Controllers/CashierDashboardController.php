@@ -72,10 +72,12 @@ class CashierDashboardController extends Controller
         }
 
         foreach ($cart as $item) {
-            $product = Product::find($item['product_id']);
+            $product = Product::with('ingredients')->find($item['product_id']); // ✅ include ingredients
+
             if ($product && $product->stock >= $item['quantity']) {
+
                 // Save order
-                Order::create([
+                $order = Order::create([
                     'product_id'    => $product->id,
                     'cashier_id'    => Auth::id(),
                     'customer_name' => $request->customer_name,
@@ -83,10 +85,10 @@ class CashierDashboardController extends Controller
                     'total_price'   => $product->price * $item['quantity'],
                 ]);
 
-                // Decrease stock
+                // Decrease product stock
                 $product->decrement('stock', $item['quantity']);
 
-                // Record stock out
+                // Record product stock out
                 Stock::create([
                     'product_id' => $product->id,
                     'type'       => 'out',
@@ -94,18 +96,38 @@ class CashierDashboardController extends Controller
                     'date'       => now()->toDateString(),
                 ]);
 
-                // ✅ Low stock notification (if ≤ 5)
-                if ($product->stock <= 5) {
-                    $existing = Notification::where('product_id', $product->id)
-                        ->where('is_read', false)
-                        ->first();
+                // ✅ Deduct INGREDIENTS based on pivot
+                foreach ($product->ingredients as $ingredient) {
+                    $requiredQty = $ingredient->pivot->quantity * $item['quantity']; // qty per product × order qty
 
-                    if (!$existing) {
-                        Notification::create([
-                            'product_id' => $product->id,
-                            'title'      => 'Low Stock Alert',
-                            'message'    => "⚠️ Product '{$product->ProductName}' is running low. Only {$product->stock} left after cashier order.",
-                        ]);
+                    if ($ingredient->stock < $requiredQty) {
+                        return back()->with('error', "❌ Not enough stock for ingredient {$ingredient->name}");
+                    }
+
+                    // Deduct ingredient stock
+                    $ingredient->decrement('stock', $requiredQty);
+
+                    // Record ingredient stock out
+                    $ingredient->stocks()->create([
+                        'type'     => 'out',
+                        'quantity' => $requiredQty,
+                        'date'     => now()->toDateString(),
+                    ]);
+
+                    // ✅ Low stock notification for INGREDIENTS only
+                    if ($ingredient->stock <= 5) {
+                        $existingIngredientNotif = Notification::where('ingredient_id', $ingredient->id)
+                            ->where('is_read', false)
+                            ->first();
+
+                        if (!$existingIngredientNotif) {
+                            Notification::create([
+                                'ingredient_id' => $ingredient->id,
+                                'title'         => 'Low Stock Ingredient Alert',
+                                'message'       => "⚠️ Ingredient '{$ingredient->name}' is running low. Only {$ingredient->stock} left after cashier order.",
+                                'is_read'       => false,
+                            ]);
+                        }
                     }
                 }
             }
@@ -114,9 +136,8 @@ class CashierDashboardController extends Controller
         // Clear cart
         session()->forget('cart');
 
-        return redirect()->route('cashier.dashboard')->with('success', 'Order placed successfully!');
+        return redirect()->route('cashier.dashboard')->with('success', '✅ Order placed successfully and ingredient stocks updated!');
     }
-
 
 
 

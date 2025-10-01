@@ -16,7 +16,7 @@
                 </form>
             @endif
 
-            {{-- ✅ New: Clear All button (always visible if may laman) --}}
+            {{-- ✅ Clear All button (always visible if may laman) --}}
             @if($notifications->count() > 0)
                 <form action="{{ route('notifications.clearAll') }}" method="POST" 
                       onsubmit="return confirm('Are you sure you want to delete all notifications?');">
@@ -32,16 +32,30 @@
     @if($notifications->count() > 0)
         <div class="list-group shadow-sm">
             @foreach($notifications as $notif)
-                <div class="list-group-item d-flex justify-content-between align-items-center {{ $notif->is_read ? 'bg-light' : 'bg-white border-start border-4 border-danger' }}">
+                <div class="list-group-item d-flex justify-content-between align-items-center 
+                    {{ $notif->is_read ? 'bg-light' : 'bg-white border-start border-4 border-danger' }}">
+                    
                     <div>
                         <h5 class="mb-1">{{ $notif->title }}</h5>
-                        <p class="mb-1 text-muted">{{ $notif->message }}</p>
+                        
+                        {{-- ✅ Show ingredient name if available --}}
+                        <p class="mb-1 text-muted">
+                            {{ $notif->message }}
+                            @if($notif->ingredient)
+                                <br>
+                                <strong>Ingredient:</strong> {{ $notif->ingredient->name }}
+                            @endif
+                        </p>
+
                         <small class="text-secondary">{{ $notif->created_at->diffForHumans() }}</small>
                     </div>
+
                     @if(!$notif->is_read)
                         <form action="{{ route('notifications.read', $notif->id) }}" method="POST">
                             @csrf
-                            {{-- <button type="submit" class="btn btn-sm btn-outline-success">Mark as Read</button> --}}
+                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                Mark as Read
+                            </button>
                         </form>
                     @else
                         <span class="badge bg-secondary">Read</span>

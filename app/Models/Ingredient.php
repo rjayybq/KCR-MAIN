@@ -10,6 +10,11 @@ class Ingredient extends Model
 {
   protected $fillable = ['name', 'stock', 'unit'];
 
+  public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     public function products()
     {
         return $this->belongsToMany(Product::class, 'ingredient_product')

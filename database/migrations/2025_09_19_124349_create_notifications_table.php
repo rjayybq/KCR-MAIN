@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
          $table->id();
+          $table->unsignedBigInteger('ingredient_id')->nullable();
+        //  $table->foreignId('ingredient_id')
+        //       ->nullable()
+        //       ->constrained('ingredients')
+        //       ->onDelete('cascade');
+
          $table->string('title');
          $table->text('message');
          $table->boolean('is_read')->default(false); // to track if admin has seen it
