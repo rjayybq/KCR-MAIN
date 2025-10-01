@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stocks', function (Blueprint $table) {
+        Schema::create('ingredient_stock', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['in', 'out']); // stock in or out
-            $table->decimal('quantity', 10, 2);  // allows decimals
-            $table->date('date');
+            $table->foreignId('ingredient_id')->constrained('ingredients')->onDelete('cascade');
+            $table->foreignId('stock_id')->constrained('stocks')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stocks');
+        Schema::dropIfExists('ingredient_stock');
     }
 };

@@ -71,76 +71,81 @@ class ProductController extends Controller
     //     return redirect()->route('products.index')->with('success', 'Product created successfully!');
     // }
     public function store(Request $request)
-    {
-        $request->validate([
-            'ProductName'             => 'required|string|max:255',
-            'category_id'             => 'required|exists:categories,id',
-            'stock'                   => 'required|numeric|min:0',
-            'price'                   => 'required|numeric|min:0',
-            'expiration_date'         => 'nullable|date',
-            'image'                   => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+{
+    $request->validate([
+        'ProductName'             => 'required|string|max:255',
+        'category_id'             => 'required|exists:categories,id',
+        'stock'                   => 'required|numeric|min:0',
+        'price'                   => 'required|numeric|min:0',
+        'expiration_date'         => 'nullable|date',
+        'image'                   => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
 
-            // Ingredients
-            'ingredients'             => 'array',
-            'ingredients.*.name'      => 'nullable|string|max:255',
-            'ingredients.*.stock'     => 'nullable|numeric|min:0',   // 🔥 allow decimals
-            'ingredients.*.unit'      => 'nullable|string|max:50',
-            'ingredients.*.quantity'  => 'nullable|numeric|min:0',   // qty per product
-        ]);
+        // Ingredients
+        'ingredients'             => 'array',
+        'ingredients.*.name'      => 'nullable|string|max:255',
+        'ingredients.*.stock'     => 'nullable|numeric|min:0',
+        'ingredients.*.unit'      => 'nullable|string|max:50',
+        'ingredients.*.quantity'  => 'nullable|numeric|min:0',
+    ]);
 
-        // ✅ Handle image
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-        }
+    // ✅ Upload image if exists
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('products', 'public');
+    }
 
-        // ✅ Create Product
-        $product = Product::create([
-            'ProductName'     => $request->ProductName,
-            'category_id'     => $request->category_id,
-            'stock'           => $request->stock,
-            'price'           => $request->price,
-            'expiration_date' => $request->expiration_date,
-            'image'           => $imagePath,
-        ]);
+    // ✅ Create Product
+    $product = Product::create([
+        'ProductName'     => $request->ProductName,
+        'category_id'     => $request->category_id,
+        'stock'           => $request->stock,
+        'price'           => $request->price,
+        'expiration_date' => $request->expiration_date,
+        'image'           => $imagePath,
+    ]);
 
-        // ✅ Record stock history
-        Stock::create([
-            'product_id' => $product->id,
-            'type'       => 'in',
-            'quantity'   => $request->stock,
-            'date'       => now()->toDateString(),
-        ]);
+    // ✅ Process ingredients
+    if ($request->has('ingredients')) {
+        foreach ($request->ingredients as $ingredientData) {
+            if (!empty($ingredientData['name']) && isset($ingredientData['stock'])) {
+                
+                // 🔹 Create or update ingredient
+                $ingredient = Ingredient::firstOrCreate(
+                    ['name' => $ingredientData['name']],
+                    [
+                        'stock' => $ingredientData['stock'],
+                        'unit'  => $ingredientData['unit'] ?? 'pcs',
+                    ]
+                );
 
-        // ✅ Save ingredients and sync with pivot
-        if ($request->has('ingredients')) {
-            foreach ($request->ingredients as $ingredientData) {
-                if (!empty($ingredientData['name']) && isset($ingredientData['stock'])) {
-                    // Create or reuse ingredient by name
-                    $ingredient = Ingredient::firstOrCreate(
-                        ['name' => $ingredientData['name']], // unique by name
-                        [
-                            'stock' => $ingredientData['stock'],
-                            'unit'  => $ingredientData['unit'] ?? 'pcs',
-                        ]
-                    );
-
-                    // Update stock if provided (instead of ignoring)
-                    if (isset($ingredientData['stock'])) {
-                        $ingredient->update(['stock' => $ingredientData['stock']]);
-                    }
-
-                    // Attach to pivot with quantity per product
-                    $product->ingredients()->attach($ingredient->id, [
-                        'quantity' => $ingredientData['quantity'] ?? 1,
-                    ]);
+                // 🔹 Update stock value of ingredient
+                if (isset($ingredientData['stock'])) {
+                    $ingredient->update(['stock' => $ingredientData['stock']]);
                 }
+
+                // 🔹 Create Stock Transaction
+                $stock = Stock::create([
+                    'type'     => 'in',
+                    'quantity' => $ingredientData['stock'],
+                    'date'     => now()->toDateString(),
+                ]);
+
+                // 🔹 Attach ingredient to stock via pivot
+                $stock->ingredients()->attach($ingredient->id);
+
+                // 🔹 Attach ingredient to product with quantity per product
+                $product->ingredients()->attach($ingredient->id, [
+                    'quantity' => $ingredientData['quantity'] ?? 1,
+                ]);
             }
         }
-
-        return redirect()->route('products.index')
-            ->with('success', '✅ Product and ingredients created & linked successfully!');
     }
+
+    return redirect()->route('products.index')
+        ->with('success', '✅ Product, ingredients, and stock records created successfully!');
+}
+
+
 
 
 

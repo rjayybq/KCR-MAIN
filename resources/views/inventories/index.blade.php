@@ -23,39 +23,45 @@
                 </tr>
             </thead>
             <tbody>
-
-                {{-- ✅ Loop ingredients --}}
                 @forelse($ingredients as $ingredient)
                     <tr>
                         {{-- Stock In --}}
                         <td>
-                            @foreach($stocksIn->where('ingredient_id', $ingredient->id) as $in)
+                            @forelse($ingredient->stocks->where('type', 'in') as $in)
                                 {{ $in->date }} <br>
-                            @endforeach
+                            @empty
+                                <span class="text-muted">-</span>
+                            @endforelse
                         </td>
                         <td>{{ $ingredient->name }}</td>
                         <td>
-                            @foreach($stocksIn->where('ingredient_id', $ingredient->id) as $in)
-                                {{ $in->quantity }} <br>
-                            @endforeach
+                            @forelse($ingredient->stocks->where('type', 'in') as $in)
+                                {{ number_format($in->quantity, 2) }} <br>
+                            @empty
+                                <span class="text-muted">0</span>
+                            @endforelse
                         </td>
 
                         {{-- Stock Out --}}
                         <td>
-                            @foreach($stocksOut->where('ingredient_id', $ingredient->id) as $out)
+                            @forelse($ingredient->stocks->where('type', 'out') as $out)
                                 {{ $out->date }} <br>
-                            @endforeach
+                            @empty
+                                <span class="text-muted">-</span>
+                            @endforelse
                         </td>
                         <td>{{ $ingredient->name }}</td>
                         <td>
-                            @foreach($stocksOut->where('ingredient_id', $ingredient->id) as $out)
-                                {{ $out->quantity }} <br>
-                            @endforeach
+                            @forelse($ingredient->stocks->where('type', 'out') as $out)
+                                {{ number_format($out->quantity, 2) }} <br>
+                            @empty
+                                <span class="text-muted">0</span>
+                            @endforelse
                         </td>
 
                         {{-- Balance --}}
                         <td>{{ $ingredient->name }}</td>
-                        <td>{{ $ingredient->stock }}</td>
+                        <td>{{ number_format($ingredient->stock ?? 0, 2) }}</td>
                     </tr>
                 @empty
                     <tr>

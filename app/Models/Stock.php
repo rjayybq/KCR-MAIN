@@ -6,10 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Stock extends Model
 {
-    protected $fillable = ['product_id', 'type', 'quantity', 'date'];
+    protected $fillable = [ 'type', 'quantity', 'date'];
 
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function ingredients()
+    {
+        return $this->belongsToMany(Ingredient::class, 'ingredient_stock')
+                    ->withTimestamps();
+    }
+
 }
