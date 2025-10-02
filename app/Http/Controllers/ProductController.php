@@ -33,6 +33,14 @@ class ProductController extends Controller
         return view('products.create', compact('categories', 'ingredients'));
     }
 
+    public function edit(Product $product)
+    {
+        $categories = Category::all();
+
+        $ingredients = $product->ingredients()->get();
+
+        return view('products.edit', compact('product', 'categories', 'ingredients'));
+    }
 
     // Store new product
     // public function store(Request $request)
@@ -71,179 +79,180 @@ class ProductController extends Controller
     //     return redirect()->route('products.index')->with('success', 'Product created successfully!');
     // }
     public function store(Request $request)
-{
-    $request->validate([
-        'ProductName'             => 'required|string|max:255',
-        'category_id'             => 'required|exists:categories,id',
-        'stock'                   => 'required|numeric|min:0',
-        'price'                   => 'required|numeric|min:0',
-        'expiration_date'         => 'nullable|date',
-        'image'                   => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+    {
+        $request->validate([
+            'ProductName'     => 'required|string|max:255',
+            'category_id'     => 'required|exists:categories,id',
+            'stock'           => 'required|numeric|min:0',
+            'price'           => 'required|numeric|min:0',
+            'expiration_date' => 'nullable|date',
+            'image'           => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'ingredients'     => 'array',
+            'ingredients.*.name'  => 'nullable|string|max:255',
+            'ingredients.*.stock' => 'nullable|numeric|min:0',
+            'ingredients.*.unit'  => 'nullable|string|max:50',
+            'ingredients.*.quantity' => 'nullable|numeric|min:0',
+        ]);
 
-        // Ingredients
-        'ingredients'             => 'array',
-        'ingredients.*.name'      => 'nullable|string|max:255',
-        'ingredients.*.stock'     => 'nullable|numeric|min:0',
-        'ingredients.*.unit'      => 'nullable|string|max:50',
-        'ingredients.*.quantity'  => 'nullable|numeric|min:0',
-    ]);
+        // Upload image
+        $imagePath = $request->hasFile('image') 
+            ? $request->file('image')->store('products', 'public') 
+            : null;
 
-    // ✅ Upload image if exists
-    $imagePath = null;
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('products', 'public');
-    }
+        // Create Product
+        $product = Product::create([
+            'ProductName'     => $request->ProductName,
+            'category_id'     => $request->category_id,
+            'stock'           => $request->stock,
+            'price'           => $request->price,
+            'expiration_date' => $request->expiration_date,
+            'image'           => $imagePath,
+        ]);
 
-    // ✅ Create Product
-    $product = Product::create([
-        'ProductName'     => $request->ProductName,
-        'category_id'     => $request->category_id,
-        'stock'           => $request->stock,
-        'price'           => $request->price,
-        'expiration_date' => $request->expiration_date,
-        'image'           => $imagePath,
-    ]);
-
-    // ✅ Process ingredients
-    if ($request->has('ingredients')) {
+        if ($request->has('ingredients')) {
         foreach ($request->ingredients as $ingredientData) {
-            if (!empty($ingredientData['name']) && isset($ingredientData['stock'])) {
-                
-                // 🔹 Create or update ingredient
+            if (!empty($ingredientData['name'])) {
                 $ingredient = Ingredient::firstOrCreate(
                     ['name' => $ingredientData['name']],
-                    [
-                        'stock' => $ingredientData['stock'],
-                        'unit'  => $ingredientData['unit'] ?? 'pcs',
-                    ]
+                    ['stock' => $ingredientData['stock'], 'unit' => $ingredientData['unit']]
                 );
 
-                // 🔹 Update stock value of ingredient
-                if (isset($ingredientData['stock'])) {
-                    $ingredient->update(['stock' => $ingredientData['stock']]);
-                }
-
-                // 🔹 Create Stock Transaction
-                $stock = Stock::create([
-                    'type'     => 'in',
-                    'quantity' => $ingredientData['stock'],
-                    'date'     => now()->toDateString(),
-                ]);
-
-                // 🔹 Attach ingredient to stock via pivot
-                $stock->ingredients()->attach($ingredient->id);
-
-                // 🔹 Attach ingredient to product with quantity per product
+                // attach with qty per product (recipe)
                 $product->ingredients()->attach($ingredient->id, [
-                    'quantity' => $ingredientData['quantity'] ?? 1,
+                    'quantity' => $ingredientData['quantity'] ?? 1
                 ]);
             }
         }
     }
 
-    return redirect()->route('products.index')
-        ->with('success', '✅ Product, ingredients, and stock records created successfully!');
-}
 
-
-
-
-
-
-    // Show edit form
-    public function edit(Product $product)
-{
-    $categories = Category::all();
+        return redirect()->route('products.index')
+            ->with('success', '✅ Product with ingredients created successfully!');
+    }
 
     
-    $ingredients = $product->ingredients()->get();
-
-    return view('products.edit', compact('product', 'categories', 'ingredients'));
-}
 
     // Update product
-   public function update(Request $request, Product $product)
-{
-    $request->validate([
-        'ProductName'         => 'required|string|max:255',
-        'category_id'         => 'required|exists:categories,id',
-        'stock'               => 'required|integer|min:0',
-        'price'               => 'required|numeric|min:0',
-        'expiration_date'     => 'nullable|date',
-        'image'               => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-        'ingredients'         => 'array', // for pivot usage qty
-        'ingredients.*'       => 'nullable|numeric|min:0',
-        'ingredient_stock'    => 'array', // for global inventory stock
-        'ingredient_stock.*'  => 'nullable|numeric|min:0',
-    ]);
+    public function update(Request $request, Product $product)
+    {
+        $request->validate([
+            'ProductName'     => 'required|string|max:255',
+            'category_id'     => 'required|exists:categories,id',
+            'stock'           => 'required|numeric|min:0',
+            'price'           => 'required|numeric|min:0',
+            'expiration_date' => 'nullable|date',
+            'image'           => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
 
-    // ✅ Store old stock before updating
-    $oldStock = $product->stock;
+            // Pivot data (qty per product)
+            'ingredients'     => 'array',
+            'ingredients.*'   => 'nullable|numeric|min:0',  
 
-    // ✅ Handle product image update
-    if ($request->hasFile('image')) {
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
-        }
-        $product->image = $request->file('image')->store('products', 'public');
-    }
-
-    // ✅ Update product fields
-    $product->update([
-        'ProductName'     => $request->ProductName,
-        'category_id'     => $request->category_id,
-        'stock'           => $request->stock,
-        'price'           => $request->price,
-        'expiration_date' => $request->expiration_date,
-        'image'           => $product->image,
-    ]);
-
-    // ✅ Compare old vs new stock (Stock History Logs)
-    if ($request->stock > $oldStock) {
-        Stock::create([
-            'product_id' => $product->id,
-            'type'       => 'in',
-            'quantity'   => $request->stock - $oldStock,
-            'date'       => now()->toDateString(),
+            // Global stock update
+            'ingredient_stock'    => 'array',
+            'ingredient_stock.*'  => 'nullable|numeric|min:0',
         ]);
-    } elseif ($request->stock < $oldStock) {
-        Stock::create([
-            'product_id' => $product->id,
-            'type'       => 'out',
-            'quantity'   => $oldStock - $request->stock,
-            'date'       => now()->toDateString(),
-        ]);
-    }
 
-    // ✅ Update Global Ingredient Stock (ingredients table)
-   if ($request->has('ingredients')) {
-        $syncData = [];
-        foreach ($request->ingredients as $ingredientId => $qty) {
-            if ($qty > 0) {
-                $syncData[$ingredientId] = ['quantity' => $qty];
+        $oldStock = $product->stock;
+
+        // ✅ Handle product image update
+        if ($request->hasFile('image')) {
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
             }
+            $product->image = $request->file('image')->store('products', 'public');
         }
-        $product->ingredients()->sync($syncData); // attach or update pivot
-    }
 
-    
-    // ✅ Product Low Stock Notification
-    if ($product->stock <= 5) {
-        $existing = Notification::where('product_id', $product->id)
-                    ->where('is_read', false)
-                    ->first();
+        // ✅ Update product fields
+        $product->update([
+            'ProductName'     => $request->ProductName,
+            'category_id'     => $request->category_id,
+            'stock'           => $request->stock,
+            'price'           => $request->price,
+            'expiration_date' => $request->expiration_date,
+            'image'           => $product->image,
+        ]);
 
-        if (!$existing) {
-            Notification::create([
+        // ✅ Log product stock in/out
+        if ($request->stock > $oldStock) {
+            Stock::create([
                 'product_id' => $product->id,
-                'title'      => 'Low Stock Alert',
-                'message'    => "⚠️ Product '{$product->ProductName}' is running low. Only {$product->stock} left!",
+                'type'       => 'in',
+                'quantity'   => $request->stock - $oldStock,
+                'date'       => now()->toDateString(),
+            ]);
+        } elseif ($request->stock < $oldStock) {
+            Stock::create([
+                'product_id' => $product->id,
+                'type'       => 'out',
+                'quantity'   => $oldStock - $request->stock,
+                'date'       => now()->toDateString(),
             ]);
         }
+
+        // ✅ Update pivot (required qty per product)
+        if ($request->has('ingredients')) {
+            $syncData = [];
+            foreach ($request->ingredients as $ingredientId => $qty) {
+                if ($qty > 0) {
+                    $syncData[$ingredientId] = ['quantity' => $qty];
+                }
+            }
+            $product->ingredients()->sync($syncData);
+        }
+
+        // ✅ Update global ingredient stock (inventory)
+        if ($request->has('ingredient_stock')) {
+            foreach ($request->ingredient_stock as $ingredientId => $newStock) {
+                $ingredient = Ingredient::find($ingredientId);
+                if ($ingredient) {
+                    $oldIngredientStock = $ingredient->stock;
+
+                    $ingredient->update(['stock' => $newStock]);
+
+                    // Record ingredient stock movement
+                    if ($newStock > $oldIngredientStock) {
+                        \App\Models\IngredientStock::create([
+                            'ingredient_id' => $ingredient->id,
+                            'type'          => 'in',
+                            'movement_qty'  => $newStock - $oldIngredientStock,
+                            'date'          => now()->toDateString(),
+                        ]);
+                    } elseif ($newStock < $oldIngredientStock) {
+                        \App\Models\IngredientStock::create([
+                            'ingredient_id' => $ingredient->id,
+                            'type'          => 'out',
+                            'movement_qty'  => $oldIngredientStock - $newStock,
+                            'date'          => now()->toDateString(),
+                        ]);
+                    }
+
+                    // Low stock alert
+                    if ($ingredient->stock <= 5) {
+                        Notification::firstOrCreate(
+                            [
+                                'ingredient_id' => $ingredient->id,
+                                'is_read'       => false,
+                            ],
+                            [
+                                'title'   => 'Low Stock Ingredient Alert',
+                                'message' => "⚠️ Ingredient '{$ingredient->name}' is running low. Only {$ingredient->stock} left in stock!",
+                            ]
+                        );
+                    }
+                }
+            }
+        }
+
+        return redirect()->route('products.index')
+            ->with('success', '✅ Product & ingredients updated successfully!');
     }
 
-    return redirect()->route('products.index')->with('success', '✅ Product & ingredients updated successfully!');
-}
+
+
+
+
+
+
 
 
 

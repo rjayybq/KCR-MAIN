@@ -21,13 +21,19 @@ class InventoryController extends Controller
 
     public function index()
     {
-       
-        $ingredients = Ingredient::all();
+        // $ingredients = Ingredient::with(['stocks' => function($q) {
+        //     $q->orderBy('date', 'desc');
+        // }])->get();
 
-        $stocksIn = Stock::where('type', 'in')->get();
-        $stocksOut = Stock::where('type', 'out')->get();
+        $ingredients = Ingredient::with('movements')->get();
 
-        return view('inventories.index', compact( 'ingredients', 'stocksIn', 'stocksOut'));
+        foreach ($ingredients as $ingredient) {
+            if (!$ingredient->movements) {
+                $ingredient->setRelation('movements', collect());
+            }
+        }
+
+        return view('inventories.index', compact('ingredients'));
     }
 
         public function create()

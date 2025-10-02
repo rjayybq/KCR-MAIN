@@ -23,9 +23,17 @@ class Ingredient extends Model
     }
 
    public function stocks()
+{
+    return $this->hasMany(IngredientStock::class);
+}
+
+
+  public function movements()
   {
-      return $this->belongsToMany(Stock::class, 'ingredient_stock')
-                  ->withTimestamps();
+      return $this->hasMany(IngredientStock::class, 'ingredient_id');
   }
+
+
+    
 
 }

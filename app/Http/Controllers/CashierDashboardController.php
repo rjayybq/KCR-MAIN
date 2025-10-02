@@ -59,7 +59,7 @@ class CashierDashboardController extends Controller
     }
 
     // ✅ Checkout
-    public function checkout(Request $request)
+   public function checkout(Request $request)
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -72,11 +72,11 @@ class CashierDashboardController extends Controller
         }
 
         foreach ($cart as $item) {
-            $product = Product::with('ingredients')->find($item['product_id']); // ✅ include ingredients
+            $product = Product::with('ingredients')->find($item['product_id']); // load product + ingredients
 
             if ($product && $product->stock >= $item['quantity']) {
 
-                // Save order
+                // ✅ Save Order
                 $order = Order::create([
                     'product_id'    => $product->id,
                     'cashier_id'    => Auth::id(),
@@ -85,10 +85,10 @@ class CashierDashboardController extends Controller
                     'total_price'   => $product->price * $item['quantity'],
                 ]);
 
-                // Decrease product stock
+                // ✅ Decrease product stock
                 $product->decrement('stock', $item['quantity']);
 
-                // Record product stock out
+                // ✅ Record PRODUCT stock OUT (optional, kung may hiwalay kang product stock history)
                 Stock::create([
                     'product_id' => $product->id,
                     'type'       => 'out',
@@ -96,31 +96,30 @@ class CashierDashboardController extends Controller
                     'date'       => now()->toDateString(),
                 ]);
 
-                // ✅ Deduct INGREDIENTS based on pivot
+                // ✅ Deduct INGREDIENTS
                 foreach ($product->ingredients as $ingredient) {
-                    $requiredQty = $ingredient->pivot->quantity * $item['quantity']; // qty per product × order qty
+                    $requiredQty = $ingredient->pivot->quantity * $item['quantity']; 
+                    // recipe_qty × order_qty
 
-                    if ($ingredient->stock < $requiredQty) {
-                        return back()->with('error', "❌ Not enough stock for ingredient {$ingredient->name}");
-                    }
 
-                    // Deduct ingredient stock
+                    // Update ingredient stock
                     $ingredient->decrement('stock', $requiredQty);
 
-                    // Record ingredient stock out
-                    $ingredient->stocks()->create([
-                        'type'     => 'out',
-                        'quantity' => $requiredQty,
-                        'date'     => now()->toDateString(),
+                    // ✅ Log ingredient stock OUT sa ingredient_stock table
+                    \App\Models\IngredientStock::create([
+                        'ingredient_id' => $ingredient->id,
+                        'type'          => 'out',
+                        'movement_qty'  => $requiredQty,
+                        'date'          => now()->toDateString(),
                     ]);
 
-                    // ✅ Low stock notification for INGREDIENTS only
+                    // ✅ Low stock notification
                     if ($ingredient->stock <= 5) {
-                        $existingIngredientNotif = Notification::where('ingredient_id', $ingredient->id)
+                        $existingNotif = Notification::where('ingredient_id', $ingredient->id)
                             ->where('is_read', false)
                             ->first();
 
-                        if (!$existingIngredientNotif) {
+                        if (!$existingNotif) {
                             Notification::create([
                                 'ingredient_id' => $ingredient->id,
                                 'title'         => 'Low Stock Ingredient Alert',
@@ -136,8 +135,12 @@ class CashierDashboardController extends Controller
         // Clear cart
         session()->forget('cart');
 
-        return redirect()->route('cashier.dashboard')->with('success', '✅ Order placed successfully and ingredient stocks updated!');
+        return redirect()->route('cashier.dashboard')->with('success', '✅ Order placed successfully and stocks updated!');
     }
+
+
+
+
 
 
 

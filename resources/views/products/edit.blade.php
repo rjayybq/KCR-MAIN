@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="text-success fw-bold display-5 mb-4">✏️ Edit Product</h1>
+    <h1 class="text-success fw-bold display-5 mb-4">Edit Product</h1>
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
@@ -79,22 +79,41 @@
                 {{-- Ingredients Section --}}
                 <div class="mb-4">
                     <h5 class="text-success fw-bold">Ingredients (Raw Meat / Ingredients)</h5>
-                    <p class="text-muted small">Update stock (global inventory) and required qty per product.</p>
+                    <p class="text-muted small">Update required qty per product and global stock in inventory.</p>
 
-                   @foreach($ingredients as $ingredient)
-                        <div class="row mb-2">
-                            <div class="col-md-6">
+                    @foreach($ingredients as $ingredient)
+                        @php
+                            $pivotQty = $product->ingredients->find($ingredient->id)->pivot->quantity ?? '';
+                        @endphp
+
+                        <div class="row mb-2 align-items-center">
+                            <div class="col-md-4">
                                 <label>{{ $ingredient->name }} ({{ $ingredient->unit }})</label>
                             </div>
-                            <div class="col-md-6">
+
+                            {{-- Qty per product (pivot) --}}
+                            <div class="col-md-4">
                                 <input type="number" step="0.01"
                                     name="ingredients[{{ $ingredient->id }}]"
-                                    value="{{ old('ingredients.' . $ingredient->id, $product->ingredients->find($ingredient->id)->pivot->quantity ?? '') }}"
-                                    class="form-control" placeholder="Qty per product">
+                                    value="{{ old('ingredients.' . $ingredient->id, $pivotQty) }}"
+                                    class="form-control"
+                                    placeholder="Qty per product">
+                                <small class="text-muted">Required per product</small>
+                            </div>
+
+                            {{-- Global Stock (ingredient stock) --}}
+                            <div class="col-md-4">
+                                <input type="number" step="0.01"
+                                    name="ingredient_stock[{{ $ingredient->id }}]"
+                                    value="{{ old('ingredient_stock.' . $ingredient->id, $ingredient->stock) }}"
+                                    class="form-control"
+                                    placeholder="Global stock">
+                                <small class="text-muted">Current stock in inventory</small>
                             </div>
                         </div>
                     @endforeach
                 </div>
+
 
 
 
