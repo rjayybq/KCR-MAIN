@@ -11,6 +11,10 @@
                     <th>Customer</th>
                     <th>Product</th>
                     <th>Quantity</th>
+                    <th>Customer Type</th>
+                    <th>Original Price</th>
+                    <th>Discount</th>
+                    <th>Final Price</th>
                     <th>Total Price</th>
                     <th>Cashier</th>
                     <th>Date</th>
@@ -32,6 +36,9 @@
 
                         <td>{{ $purchase->product->ProductName ?? 'N/A' }}</td>
                         <td>{{ $purchase->quantity }}</td>
+                        <td>{{ ucfirst($purchase->customer_type) }}</td>
+                        <td>₱{{ number_format($purchase->original_price, 2) }}</td>
+                        <td>₱{{ number_format($purchase->discount, 2) }}</td>
                         <td>₱{{ number_format($purchase->total_price, 2) }}</td>
                         <td>{{ $purchase->cashier->name ?? 'N/A' }}</td>
                         <td>{{ $purchase->created_at->format('M d, Y h:i A') }}</td>

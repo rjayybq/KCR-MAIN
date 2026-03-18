@@ -16,6 +16,9 @@ class Order extends Model
         'customer_name',
         'customer_email',
         'quantity',
+        'customer_type',
+        'original_price',
+        'discount',
         'total_price',
         
     ];

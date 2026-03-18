@@ -164,6 +164,15 @@
                             <label class="form-label">Customer Name</label>
                             <input type="text" name="customer_name" class="form-control form-control-lg" required>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Customer Type</label>
+                            <select name="customer_type" class="form-control form-control-lg" required>
+                                            <option value="regular">Regular</option>
+                                            <option value="senior">Senior Citizen</option>
+                                            <option value="pwd">PWD</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-success w-100 btn-lg">Confirm Order</button>
                     </form>
                 @endif
