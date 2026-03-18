@@ -23,14 +23,16 @@ class PurchaseController extends Controller
                 });
             }
 
-            // Date filter
+            //  Date picker filter
+            if ($request->filled('date')) {
+                $query->whereDate('created_at', $request->date);
+            }
+
+            //  Button filters
             if ($filter === 'daily') {
                 $query->whereDate('created_at', today());
             } elseif ($filter === 'weekly') {
-                $query->whereBetween('created_at', [
-                    now()->startOfWeek(),
-                    now()->endOfWeek()
-                ]);
+                $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
             } elseif ($filter === 'monthly') {
                 $query->whereMonth('created_at', now()->month)
                     ->whereYear('created_at', now()->year);
