@@ -9,53 +9,81 @@ use Illuminate\Http\Request;
 class PurchaseController extends Controller
 {
        public function index(Request $request)
-    {
-        $query = Order::with(['product', 'cashier']);
+        {
+            $query = Order::with(['product', 'cashier']);
+            $filter = $request->get('filter');
 
-        if ($request->filled('customer')) {
-            $query->where('customer_name', 'like', '%' . $request->customer . '%');
+            if ($request->filled('customer')) {
+                $query->where('customer_name', 'like', '%' . $request->customer . '%');
+            }
+
+            if ($request->filled('product')) {
+                $query->whereHas('product', function ($q) use ($request) {
+                    $q->where('ProductName', 'like', '%' . $request->product . '%');
+                });
+            }
+
+            // Date filter
+            if ($filter === 'daily') {
+                $query->whereDate('created_at', today());
+            } elseif ($filter === 'weekly') {
+                $query->whereBetween('created_at', [
+                    now()->startOfWeek(),
+                    now()->endOfWeek()
+                ]);
+            } elseif ($filter === 'monthly') {
+                $query->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year);
+            } elseif ($filter === 'yearly') {
+                $query->whereYear('created_at', now()->year);
+            }
+
+            $purchases = $query->latest()->paginate(10)->appends($request->all());
+
+            return view('purchases.index', compact('purchases', 'filter'));
         }
-
-        if ($request->filled('product')) {
-            $query->whereHas('product', function ($q) use ($request) {
-                $q->where('ProductName', 'like', '%' . $request->product . '%');
-            });
-        }
-
-        $purchases = $query->latest()->paginate(10);
-
-        return view('purchases.index', compact('purchases'));
-    }
 
         public function cashierHistory(Request $request)
-    {
-        $query = Purchase::with(['user', 'product']);
+            {
+                $query = Purchase::with(['user', 'product']);
+                $filter = $request->get('filter');
 
-        // Only show purchases handled by this cashier
-        $query->where('cashier_id', auth()->id());
+                $query->where('cashier_id', auth()->id());
 
-        // Filters (optional, same as admin’s)
-        if ($request->filled('customer')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->customer . '%');
-            });
-        }
+                if ($request->filled('customer')) {
+                    $query->whereHas('user', function ($q) use ($request) {
+                        $q->where('name', 'like', '%' . $request->customer . '%');
+                    });
+                }
 
-        if ($request->filled('product')) {
-            $query->whereHas('product', function ($q) use ($request) {
-                $q->where('ProductName', 'like', '%' . $request->product . '%');
-            });
-        }
+                if ($request->filled('product')) {
+                    $query->whereHas('product', function ($q) use ($request) {
+                        $q->where('ProductName', 'like', '%' . $request->product . '%');
+                    });
+                }
 
-        if ($request->filled('from') && $request->filled('to')) {
-            $query->whereBetween('created_at', [$request->from, $request->to]);
-        }
+                if ($filter === 'daily') {
+                    $query->whereDate('created_at', today());
+                } elseif ($filter === 'weekly') {
+                    $query->whereBetween('created_at', [
+                        now()->startOfWeek(),
+                        now()->endOfWeek()
+                    ]);
+                } elseif ($filter === 'monthly') {
+                    $query->whereMonth('created_at', now()->month)
+                        ->whereYear('created_at', now()->year);
+                } elseif ($filter === 'yearly') {
+                    $query->whereYear('created_at', now()->year);
+                }
 
-        $purchases = $query->orderBy('created_at', 'desc')->paginate(10);
+                if ($request->filled('from') && $request->filled('to')) {
+                    $query->whereBetween('created_at', [$request->from, $request->to]);
+                }
 
-       return view('cashier.purchaseHistory', compact('purchases'));
+                $purchases = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->all());
 
-    }
+                return view('cashier.purchaseHistory', compact('purchases', 'filter'));
+            }
 
   
 }

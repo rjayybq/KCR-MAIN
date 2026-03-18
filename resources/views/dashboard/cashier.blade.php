@@ -167,11 +167,17 @@
 
                         <div class="mb-3">
                             <label class="form-label">Customer Type</label>
-                            <select name="customer_type" class="form-control form-control-lg" required>
-                                            <option value="regular">Regular</option>
-                                            <option value="senior">Senior Citizen</option>
-                                            <option value="pwd">PWD</option>
-                            </select>
+
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="customer_type" id="regular" value="regular" checked>
+                                <label class="btn btn-outline-secondary" for="regular">Regular</label>
+
+                                <input type="radio" class="btn-check" name="customer_type" id="senior" value="senior">
+                                <label class="btn btn-outline-primary" for="senior">Senior</label>
+
+                                <input type="radio" class="btn-check" name="customer_type" id="pwd" value="pwd">
+                                <label class="btn btn-outline-warning" for="pwd">PWD</label>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-success w-100 btn-lg">Confirm Order</button>
                     </form>

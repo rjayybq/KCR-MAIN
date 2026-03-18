@@ -58,6 +58,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Purchase history (all purchases)
     Route::get('/purchase-history', [PurchaseController::class, 'index'])->name('purchaseHistory');
+    
 
     // Profile
     Route::get('/profile', [UserController::class, 'show'])->name('profile.show');
