@@ -10,6 +10,7 @@ use App\Models\Notification;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 
@@ -115,7 +116,7 @@ class CashierDashboardController extends Controller
     }
 
     // ✅ Checkout
-    public function checkout(Request $request)
+        public function checkout(Request $request)
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -127,73 +128,102 @@ class CashierDashboardController extends Controller
             return back()->with('error', 'Cart is empty!');
         }
 
+        // ✅ Validate all products and ingredients first
         foreach ($cart as $item) {
             $product = Product::with('ingredients')->find($item['product_id']);
 
             if (!$product) {
-                return back()->with('error', "Product not found.");
+                return back()->with('error', "Product '{$item['name']}' not found.");
             }
 
+            // Check product stock
             if ($item['quantity'] > $product->stock) {
                 return back()->with('error', "Only {$product->stock} stock(s) available for {$product->ProductName}.");
             }
-        }
 
-        foreach ($cart as $item) {
-            $product = Product::with('ingredients')->find($item['product_id']);
-
-            $order = Order::create([
-                'product_id'    => $product->id,
-                'cashier_id'    => Auth::id(),
-                'customer_name' => $request->customer_name,
-                'quantity'      => $item['quantity'],
-                'total_price'   => $product->price * $item['quantity'],
-            ]);
-
-            $product->decrement('stock', $item['quantity']);
-
-            Stock::create([
-                'product_id' => $product->id,
-                'type'       => 'out',
-                'quantity'   => $item['quantity'],
-                'date'       => now()->toDateString(),
-            ]);
-
+            // Check ingredient stock
             foreach ($product->ingredients as $ingredient) {
                 $requiredQty = $ingredient->pivot->quantity * $item['quantity'];
+                $unit = $ingredient->unit ?? '';
 
-                $ingredient->decrement('stock', $requiredQty);
-
-                \App\Models\IngredientStock::create([
-                    'ingredient_id' => $ingredient->id,
-                    'type'          => 'out',
-                    'movement_qty'  => $requiredQty,
-                    'date'          => now()->toDateString(),
-                ]);
-
-                $ingredient->refresh();
-
-                if ($ingredient->stock <= 5) {
-                    $existingNotif = Notification::where('ingredient_id', $ingredient->id)
-                        ->where('is_read', false)
-                        ->first();
-
-                    if (!$existingNotif) {
-                        Notification::create([
-                            'ingredient_id' => $ingredient->id,
-                            'title'         => 'Low Stock Ingredient Alert',
-                            'message'       => "⚠️ Ingredient '{$ingredient->name}' is running low. Only {$ingredient->stock} left after cashier order.",
-                            'is_read'       => false,
-                        ]);
-                    }
+                if ($ingredient->stock < $requiredQty) {
+                    return back()->with(
+                        'error',
+                        "Order unsuccessful. Not enough stock for ingredient '{$ingredient->name}'. Required: {$requiredQty} {$unit}, Available: {$ingredient->stock} {$unit}."
+                    );
                 }
             }
         }
 
-        session()->forget('cart');
+        \DB::beginTransaction();
 
-        return redirect()->route('cashier.dashboard')
-            ->with('success', '✅ Order placed successfully and stocks updated!');
+        try {
+            foreach ($cart as $item) {
+                $product = Product::with('ingredients')->find($item['product_id']);
+
+                Order::create([
+                    'product_id'    => $product->id,
+                    'cashier_id'    => Auth::id(),
+                    'customer_name' => $request->customer_name,
+                    'quantity'      => $item['quantity'],
+                    'total_price'   => $product->price * $item['quantity'],
+                ]);
+
+                // Decrease product stock
+                $product->decrement('stock', $item['quantity']);
+
+                // Log product stock out
+                Stock::create([
+                    'product_id' => $product->id,
+                    'type'       => 'out',
+                    'quantity'   => $item['quantity'],
+                    'date'       => now()->toDateString(),
+                ]);
+
+                // Deduct ingredient stock
+                foreach ($product->ingredients as $ingredient) {
+                    $requiredQty = $ingredient->pivot->quantity * $item['quantity'];
+
+                    $ingredient->decrement('stock', $requiredQty);
+
+                    \App\Models\IngredientStock::create([
+                        'ingredient_id' => $ingredient->id,
+                        'type'          => 'out',
+                        'movement_qty'  => $requiredQty,
+                        'date'          => now()->toDateString(),
+                    ]);
+
+                    $ingredient->refresh();
+
+                    // Low stock notification
+                    if ($ingredient->stock <= 5) {
+                        $existingNotif = Notification::where('ingredient_id', $ingredient->id)
+                            ->where('is_read', false)
+                            ->first();
+
+                        if (!$existingNotif) {
+                            Notification::create([
+                                'ingredient_id' => $ingredient->id,
+                                'title'         => 'Low Stock Ingredient Alert',
+                                'message'       => "⚠️ Ingredient '{$ingredient->name}' is running low. Only {$ingredient->stock} " . ($ingredient->unit ?? '') . " left after cashier order.",
+                                'is_read'       => false,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            \DB::commit();
+
+            session()->forget('cart');
+
+            return redirect()->route('cashier.dashboard')
+                ->with('success', '✅ Order placed successfully and stocks updated!');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+
+            return back()->with('error', 'Order unsuccessful. ' . $e->getMessage());
+        }
     }
 
 
