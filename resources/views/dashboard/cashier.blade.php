@@ -112,15 +112,37 @@
                         <tbody id="cartTable">
                             @php $grandTotal = 0; @endphp
                             @foreach($cart as $item)
-                                @php $total = $item['price'] * $item['quantity']; $grandTotal += $total; @endphp
-                                <tr data-id="{{ $item['product_id'] }}">
-                                    <td>{{ $item['name'] }}</td>
+                                @php 
+                                    $total = $item['price'] * $item['quantity']; 
+                                    $grandTotal += $total; 
+
+                                    $productStock = \App\Models\Product::find($item['product_id'])->stock ?? 0;
+                                @endphp
+                                <tr data-id="{{ $item['product_id'] }}" data-stock="{{ $productStock }}">
+                                    <td>
+                                        {{ $item['name'] }}
+                                        <br>
+                                        <small class="text-muted">Available stock: {{ $productStock }}</small>
+                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center justify-content-center">
                                             <button class="btn btn-sm btn-outline-danger update-cart" data-action="decrease">-</button>
+                                            
                                             <span class="px-3 quantity">{{ $item['quantity'] }}</span>
-                                            <button class="btn btn-sm btn-outline-success update-cart" data-action="increase">+</button>
+                                            
+                                            <button 
+                                                class="btn btn-sm btn-outline-success update-cart increase-btn" 
+                                                data-action="increase"
+                                                {{ $item['quantity'] >= $productStock ? 'disabled' : '' }}>
+                                                +
+                                            </button>
                                         </div>
+
+                                        @if($item['quantity'] >= $productStock)
+                                            <small class="text-danger d-block text-center mt-1">
+                                                Max stock reached
+                                            </small>
+                                        @endif
                                     </td>
                                     <td class="total">₱{{ number_format($total, 2) }}</td>
                                     <td>
@@ -153,56 +175,86 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    // Update quantity
-    document.querySelectorAll(".update-cart").forEach(btn => {
-        btn.addEventListener("click", function () {
-            let tr = this.closest("tr");
-            let id = tr.dataset.id;
-            let action = this.dataset.action;
 
-            fetch("{{ route('cashier.update.ajax') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ id: id, action: action })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) return alert(data.error);
-
-                if (data.quantity > 0) {
-                    tr.querySelector(".quantity").textContent = data.quantity;
-                    tr.querySelector(".total").textContent = "₱" + data.total;
-                } else {
-                    tr.remove();
-                }
-                document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
-            });
+    function bindCartButtons() {
+        document.querySelectorAll(".update-cart").forEach(btn => {
+            btn.removeEventListener("click", handleUpdateCart);
+            btn.addEventListener("click", handleUpdateCart);
         });
-    });
 
-    // Remove item
-    document.querySelectorAll(".remove-cart").forEach(btn => {
-        btn.addEventListener("click", function () {
-            let tr = this.closest("tr");
-            let id = tr.dataset.id;
+        document.querySelectorAll(".remove-cart").forEach(btn => {
+            btn.removeEventListener("click", handleRemoveCart);
+            btn.addEventListener("click", handleRemoveCart);
+        });
+    }
 
-            fetch("{{ route('cashier.remove.ajax') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ id: id })
-            })
-            .then(res => res.json())
-            .then(data => {
+    function handleUpdateCart() {
+        let tr = this.closest("tr");
+        let id = tr.dataset.id;
+        let action = this.dataset.action;
+        let stock = parseInt(tr.dataset.stock);
+        let currentQty = parseInt(tr.querySelector(".quantity").textContent);
+
+        if (action === "increase" && currentQty >= stock) {
+            alert("Maximum available stock reached.");
+            return;
+        }
+
+        fetch("{{ route('cashier.update.ajax') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ id: id, action: action })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            if (data.quantity > 0) {
+                tr.querySelector(".quantity").textContent = data.quantity;
+                tr.querySelector(".total").textContent = "₱" + data.total;
+            } else {
                 tr.remove();
-                document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
-            });
+            }
+
+            document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
+
+            // disable/enable plus button
+            let increaseBtn = tr.querySelector(".increase-btn");
+            if (increaseBtn) {
+                if (data.quantity >= stock) {
+                    increaseBtn.disabled = true;
+                } else {
+                    increaseBtn.disabled = false;
+                }
+            }
         });
-    });
+    }
+
+    function handleRemoveCart() {
+        let tr = this.closest("tr");
+        let id = tr.dataset.id;
+
+        fetch("{{ route('cashier.remove.ajax') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            tr.remove();
+            document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
+        });
+    }
+
+    bindCartButtons();
 });
 </script>
