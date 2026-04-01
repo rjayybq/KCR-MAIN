@@ -18,20 +18,27 @@ class CashierDashboardController extends Controller
 {
     // ✅ Show cashier dashboard with products + cart
     public function index(Request $request)
-    {
-        $query = Product::with('category');
+{
+    $query = Product::with('category');
 
-        if ($request->has('category') && $request->category != null) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', $request->category);
-            });
-        }
-
-        $products = $query->paginate(12);
-        $cart = session()->get('cart', []);
-
-        return view('dashboard.cashier', compact('products', 'cart'));
+    if ($request->has('category') && $request->category != null) {
+        $query->whereHas('category', function ($q) use ($request) {
+            $q->where('name', $request->category);
+        });
     }
+
+    $bestSellers = Order::select('product_id', DB::raw('SUM(quantity) as total_sold'))
+        ->groupBy('product_id')
+        ->orderByDesc('total_sold')
+        ->limit(3)
+        ->pluck('product_id')
+        ->toArray();
+
+    $products = $query->paginate(12);
+    $cart = session()->get('cart', []);
+
+    return view('dashboard.cashier', compact('products', 'cart', 'bestSellers'));
+}
 
     // ✅ Add product to cart
         public function addToCart(Request $request, Product $product)
@@ -106,7 +113,7 @@ class CashierDashboardController extends Controller
         return back();
     }
 
-    
+
 
     // ✅ View cart (separate view if needed)
     public function viewCart()
@@ -264,7 +271,7 @@ class CashierDashboardController extends Controller
    public function purchaseHistory(Request $request)
 {
     $cashierId = Auth::id(); // logged-in cashier
-    
+
     $purchases = Order::with('product')
         ->where('cashier_id', $cashierId);
 
