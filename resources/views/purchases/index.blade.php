@@ -2,18 +2,18 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <h1 class="text-success fw-bold display-5 mb-4">All Purchase History</h1>
+    <h1 class="text-success fw-bold display-5 mb-4">All Sales History</h1>
 
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-body">
             <form method="GET" action="{{ route('purchaseHistory') }}">
                 <div class="row align-items-end">
-                    
+
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-success">Select Date</label>
-                        <input 
-                            type="date" 
-                            name="date" 
+                        <input
+                            type="date"
+                            name="date"
                             class="form-control form-control-lg"
                             value="{{ request('date') }}"
                         >
@@ -85,7 +85,7 @@
                                 <td>{{ $purchase->product->ProductName ?? 'N/A' }}</td>
                                 <td>{{ $purchase->quantity }}</td>
                                 <td>
-                                    <span class="badge 
+                                    <span class="badge
                                         @if($purchase->customer_type === 'senior') bg-primary
                                         @elseif($purchase->customer_type === 'pwd') bg-warning text-dark
                                         @else bg-secondary

@@ -2,7 +2,7 @@
 
 @section('content')
 
-    
+
     <div class="d-flex justify-content-between align-items-center">
     <h1 class="text-success fw-bold display-5 ms-3">Dashboard</h1>
 
@@ -15,10 +15,10 @@
                     0
                 </span>
             </button>
-           <ul id="notificationDropdownMenu" 
-                class="dropdown-menu dropdown-menu-end shadow-lg p-2" 
-                aria-labelledby="notificationDropdown" 
-                style="width: 370px;"> 
+           <ul id="notificationDropdownMenu"
+                class="dropdown-menu dropdown-menu-end shadow-lg p-2"
+                aria-labelledby="notificationDropdown"
+                style="width: 370px;">
 
                 <li class="dropdown-header fw-bold d-flex justify-content-between align-items-center">
                     <span>Notifications</span>
@@ -74,7 +74,7 @@
             <div class="card shadow-lg border-0" style="background-color: #D2D0A0;">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        
+
                         <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalIngredientStock) }}</h1>
                         <h2 class="text-light fw-bold fs-4 mb-0">Inventories</h2>
                     </div>
@@ -94,7 +94,7 @@
             <div class="card shadow-lg border-0" style="background-color: #9EBC8A;">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        
+
                         <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalAccounts) }}</h1>
                         <h2 class="text-light fw-bold fs-4 mb-0">Accounts</h2>
                     </div>
@@ -104,7 +104,7 @@
                     <a href="{{ route('accountList') }}" class="text-white fw-semibold text-decoration-none d-flex align-items-center">
                         More Info
                         <i class="fa-solid fa-arrow-right ms-2 p-2 rounded-circle" style="background:#537D5D; font-size:12px;"></i>
-                    </a> 
+                    </a>
                 </div>
             </div>
         </div>
@@ -114,9 +114,9 @@
             <div class="card shadow-lg border-0" style="background-color: #DDEB9D;">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        
+
                         <h1 class="text-light fw-bold fs-3 mb-1">{{ number_format($totalPurchases) }}</h1>
-                        <h2 class="text-light fw-bold fs-4 mb-0">Purchases</h2>
+                        <h2 class="text-light fw-bold fs-4 mb-0">Sales</h2>
                     </div>
                     <i class="fa-solid fa-shop text-light fs-1"></i>
                 </div>
@@ -173,8 +173,8 @@
         } else {
             data.notifications.forEach(notif => {
                 // Shorten text (40 chars max)
-                let shortMsg = notif.message.length > 40 
-                    ? notif.message.substring(0, 40) + "..." 
+                let shortMsg = notif.message.length > 40
+                    ? notif.message.substring(0, 40) + "..."
                     : notif.message;
 
                 dropdown.innerHTML += `
