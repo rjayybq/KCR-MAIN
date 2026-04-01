@@ -36,8 +36,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
-
-        $ingredients = $product->ingredients()->get();
+        $ingredients = Ingredient::all();
 
         return view('products.edit', compact('product', 'categories', 'ingredients'));
     }
@@ -89,14 +88,12 @@ class ProductController extends Controller
             'image'           => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'ingredients'     => 'array',
             'ingredients.*.name'  => 'nullable|string|max:255',
-            'ingredients.*.stock' => 'nullable|numeric|min:0',
-            'ingredients.*.unit'  => 'nullable|string|max:50',
-            'ingredients.*.quantity' => 'nullable|numeric|min:0',
+            'ingredients.*' => 'nullable|numeric|min:0',
         ]);
 
         // Upload image
-        $imagePath = $request->hasFile('image') 
-            ? $request->file('image')->store('products', 'public') 
+        $imagePath = $request->hasFile('image')
+            ? $request->file('image')->store('products', 'public')
             : null;
 
         // Create Product
@@ -110,27 +107,21 @@ class ProductController extends Controller
         ]);
 
         if ($request->has('ingredients')) {
-        foreach ($request->ingredients as $ingredientData) {
-            if (!empty($ingredientData['name'])) {
-                $ingredient = Ingredient::firstOrCreate(
-                    ['name' => $ingredientData['name']],
-                    ['stock' => $ingredientData['stock'], 'unit' => $ingredientData['unit']]
-                );
-
-                // attach with qty per product (recipe)
-                $product->ingredients()->attach($ingredient->id, [
-                    'quantity' => $ingredientData['quantity'] ?? 1
-                ]);
+            foreach ($request->ingredients as $ingredientId => $qty) {
+                if (!empty($qty) && $qty > 0) {
+                    $product->ingredients()->attach($ingredientId, [
+                        'quantity' => $qty
+                    ]);
+                }
             }
         }
-    }
 
 
         return redirect()->route('products.index')
             ->with('success', '✅ Product with ingredients created successfully!');
     }
 
-    
+
 
     // Update product
     public function update(Request $request, Product $product)
@@ -145,7 +136,7 @@ class ProductController extends Controller
 
             // Pivot data (qty per product)
             'ingredients'     => 'array',
-            'ingredients.*'   => 'nullable|numeric|min:0',  
+            'ingredients.*'   => 'nullable|numeric|min:0',
 
             // Global stock update
             'ingredient_stock'    => 'array',

@@ -6,7 +6,7 @@
 
 <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
-    
+
     <!-- Product Info -->
     <div class="mb-3">
         <label class="form-label">Product Name</label>
@@ -44,48 +44,7 @@
 
     <hr>
 
-    <!-- Ingredients Section -->
-    <div class="mb-4 card shadow-sm border-0">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0"><i class="bi bi-basket-fill me-2"></i> Raw Meats / Ingredients</h5>
-        </div>
 
-        <div class="card-body" id="ingredient-wrapper">
-            <div class="row mb-2 ingredient-row align-items-center">
-                <div class="col-md-3">
-                    <input type="text" name="ingredients[0][name]" class="form-control"
-                        placeholder="Ingredient name" required>
-                </div>
-                <div class="col-md-2">
-                    <input type="number" step="any" name="ingredients[0][stock]" class="form-control"
-                        placeholder="Stock qty" min="0" required>
-                </div>
-                <div class="col-md-2">
-                    <select name="ingredients[0][unit]" class="form-select" required>
-                        <option value="pcs">pcs</option>
-                        <option value="kg">kg</option>
-                        <option value="g">g</option>
-                        <option value="L">L</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input type="number" step="any" name="ingredients[0][quantity]" class="form-control"
-                        placeholder="Qty per product" min="0" required>
-                </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <!-- Add Ingredient Button -->
-                    <button type="button" id="add-row" class="btn btn-success btn-sm" title="Add Ingredient">
-                        <i class="bi bi-plus-circle me-1"></i> Add
-                    </button>
-
-                    <!-- Remove Button -->
-                    <button type="button" class="btn btn-danger btn-sm remove-row" title="Remove">
-                        <i class="bi bi-trash me-1"></i> Remove
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     @push('scripts')

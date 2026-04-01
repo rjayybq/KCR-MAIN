@@ -16,6 +16,7 @@ use App\Http\Controllers\CashierProfileController;
 use App\Http\Controllers\CashierPurchaseController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\CashierDashboardController;
+use App\Http\Controllers\IngredientController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -74,6 +75,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/sales/export/csv', [PurchaseController::class, 'exportSalesCsv'])->name('sales.export.csv');
     Route::get('/inventory/export/csv', [InventoryController::class, 'exportInventoryCsv'])->name('inventory.export.csv');
 
+
+    // Ingredients
+    Route::resource('ingredients', IngredientController::class);
 });
 
 

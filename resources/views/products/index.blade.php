@@ -2,13 +2,20 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="text-success fw-bold display-5">Products</h1>
+    <h1 class="text-success fw-bold display-5">Products</h1>
 
-        <!-- Create Product Button -->
-        <a href="{{ route('products.create') }}" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Create Product
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('ingredients.index') }}" class="btn btn-outline-success">
+                <i class="bi bi-basket"></i> Raw Ingredients
+            </a>
+
+            <a href="{{ route('products.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Create Product
+            </a>
+        </div>
     </div>
+
+
 
     @if(session('success'))
         <div class="alert alert-success text-center">
@@ -58,7 +65,7 @@
                         <h5 class="card-title fw-bold text-success">{{ $product->ProductName }}</h5>
                         <p class="mb-1"><strong>Weight:</strong> {{ $product->weight . " " . $product->unit }}</p>
                         <p class="mb-1"><strong>Stock:</strong> {{ $product->stock }}</p>
-                        <p class="mb-1"><strong>Expiration:</strong> 
+                        <p class="mb-1"><strong>Expiration:</strong>
                             @if($product->expiration_date)
                                 {{ \Carbon\Carbon::parse($product->expiration_date)->format('M d, Y') }}
                             @else
@@ -105,7 +112,7 @@
                             <h5 class="card-title fw-bold text-success">{{ $product->ProductName }}</h5>
                             <p class="mb-1"><strong>Weight:</strong> {{ $product->weight . " " . $product->unit }}</p>
                             <p class="mb-1"><strong>Stock:</strong> {{ $product->stock }}</p>
-                            <p class="mb-1"><strong>Expiration:</strong> 
+                            <p class="mb-1"><strong>Expiration:</strong>
                                 @if($product->expiration_date)
                                     {{ \Carbon\Carbon::parse($product->expiration_date)->format('M d, Y') }}
                                 @else

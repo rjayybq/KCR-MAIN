@@ -12,106 +12,102 @@
                 {{-- Product Name --}}
                 <div class="mb-3">
                     <label for="ProductName" class="form-label fw-semibold">Product Name</label>
-                    <input type="text" 
-                           name="ProductName" 
+                    <input type="text"
+                           name="ProductName"
                            class="form-control @error('ProductName') is-invalid @enderror"
                            value="{{ old('ProductName', $product->ProductName) }}" required>
-                    @error('ProductName') 
-                        <div class="invalid-feedback">{{ $message }}</div> 
+                    @error('ProductName')
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Category --}}
                 <div class="mb-3">
                     <label for="category_id" class="form-label fw-semibold">Category</label>
-                    <select name="category_id" 
+                    <select name="category_id"
                             class="form-select @error('category_id') is-invalid @enderror" required>
                         <option value="">-- Select Category --</option>
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}" 
+                            <option value="{{ $category->id }}"
                                 {{ (old('category_id', $product->category_id) == $category->id) ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('category_id') 
-                        <div class="invalid-feedback">{{ $message }}</div> 
+                    @error('category_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Stock --}}
                 <div class="mb-3">
                     <label for="stock" class="form-label fw-semibold">Stock</label>
-                    <input type="number" 
-                           name="stock" 
+                    <input type="number"
+                           name="stock"
                            class="form-control @error('stock') is-invalid @enderror"
                            value="{{ old('stock', $product->stock) }}" required>
-                    @error('stock') 
-                        <div class="invalid-feedback">{{ $message }}</div> 
+                    @error('stock')
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Price --}}
                 <div class="mb-3">
                     <label for="price" class="form-label fw-semibold">Price (₱)</label>
-                    <input type="number" step="0.01" 
+                    <input type="number" step="0.01"
                            name="price"
                            class="form-control @error('price') is-invalid @enderror"
                            value="{{ old('price', $product->price) }}" required>
-                    @error('price') 
-                        <div class="invalid-feedback">{{ $message }}</div> 
+                    @error('price')
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Expiration Date --}}
                 <div class="mb-3">
                     <label for="expiration_date" class="form-label fw-semibold">Expiration Date</label>
-                    <input type="date" 
-                           name="expiration_date" 
+                    <input type="date"
+                           name="expiration_date"
                            class="form-control @error('expiration_date') is-invalid @enderror"
                            value="{{ old('expiration_date', $product->expiration_date ? \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d') : '') }}">
-                    @error('expiration_date') 
-                        <div class="invalid-feedback">{{ $message }}</div> 
+                    @error('expiration_date')
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-               
-                {{-- Ingredients Section --}}
-                <div class="mb-4">
-                    <h5 class="text-success fw-bold">Ingredients (Raw Meat / Ingredients)</h5>
-                    <p class="text-muted small">Update required qty per product and global stock in inventory.</p>
 
-                    @foreach($ingredients as $ingredient)
+                {{-- Ingredients Section --}}
+               <div class="mb-4">
+                    <h5 class="text-success fw-bold">Ingredients (Raw Meat / Ingredients)</h5>
+                    <p class="text-muted small">Set the required quantity per product.</p>
+
+                    @forelse($ingredients as $ingredient)
                         @php
-                            $pivotQty = $product->ingredients->find($ingredient->id)->pivot->quantity ?? '';
+                            $attachedIngredient = $product->ingredients->find($ingredient->id);
+                            $pivotQty = $attachedIngredient ? $attachedIngredient->pivot->quantity : '';
                         @endphp
 
-                        <div class="row mb-2 align-items-center">
-                            <div class="col-md-4">
-                                <label>{{ $ingredient->name }} ({{ $ingredient->unit }})</label>
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-md-6">
+                                <label class="fw-semibold">{{ $ingredient->name }} ({{ $ingredient->unit }})</label>
+                                <small class="d-block text-muted">
+                                    Available stock: {{ number_format($ingredient->stock, 2) }}
+                                </small>
                             </div>
 
-                            {{-- Qty per product (pivot) --}}
-                            <div class="col-md-4">
-                                <input type="number" step="0.01"
+                            <div class="col-md-6">
+                                <input
+                                    type="number"
+                                    step="0.01"
                                     name="ingredients[{{ $ingredient->id }}]"
                                     value="{{ old('ingredients.' . $ingredient->id, $pivotQty) }}"
                                     class="form-control"
                                     placeholder="Qty per product">
-                                <small class="text-muted">Required per product</small>
-                            </div>
-
-                            {{-- Global Stock (ingredient stock) --}}
-                            <div class="col-md-4">
-                                <input type="number" step="0.01"
-                                    name="ingredient_stock[{{ $ingredient->id }}]"
-                                    value="{{ old('ingredient_stock.' . $ingredient->id, $ingredient->stock) }}"
-                                    class="form-control"
-                                    placeholder="Global stock">
-                                <small class="text-muted">Current stock in inventory</small>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <p class="text-muted">No ingredients available. Please add ingredients first.</p>
+                    @endforelse
                 </div>
 
 
@@ -120,18 +116,18 @@
                 {{-- Product Image --}}
                 <div class="mb-3">
                     <label for="image" class="form-label fw-semibold">Product Image</label>
-                    <input type="file" name="image" 
+                    <input type="file" name="image"
                            class="form-control @error('image') is-invalid @enderror" accept="image/*">
                     @if($product->image)
                         <div class="mt-2">
-                            <img src="{{ asset('storage/' . $product->image) }}" 
-                                 alt="{{ $product->ProductName }}" 
-                                 width="120" 
+                            <img src="{{ asset('storage/' . $product->image) }}"
+                                 alt="{{ $product->ProductName }}"
+                                 width="120"
                                  class="img-thumbnail border">
                         </div>
                     @endif
-                    @error('image') 
-                        <div class="invalid-feedback">{{ $message }}</div> 
+                    @error('image')
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
