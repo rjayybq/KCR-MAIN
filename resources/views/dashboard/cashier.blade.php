@@ -12,35 +12,35 @@
 
 <!-- Menu Filter Buttons -->
 <div class="mb-4 text-center">
-    <a href="{{ route('cashier.dashboard') }}" 
+    <a href="{{ route('cashier.dashboard') }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == null ? 'active' : '' }}">
         All
     </a>
-    <a href="{{ route('cashier.dashboard', ['category' => 'Appetizers / Pulutan']) }}" 
+    <a href="{{ route('cashier.dashboard', ['category' => 'Appetizers / Pulutan']) }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == 'Appetizers / Pulutan' ? 'active' : '' }}">
         Appetizers / Pulutan
     </a>
-    <a href="{{ route('cashier.dashboard', ['category' => 'Main Dishes']) }}" 
+    <a href="{{ route('cashier.dashboard', ['category' => 'Main Dishes']) }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == 'Main Dishes' ? 'active' : '' }}">
         Main Dishes
     </a>
-    <a href="{{ route('cashier.dashboard', ['category' => 'Pasta & Pizza']) }}" 
+    <a href="{{ route('cashier.dashboard', ['category' => 'Pasta & Pizza']) }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == 'Pasta & Pizza' ? 'active' : '' }}">
         Pasta & Pizza
     </a>
-    <a href="{{ route('cashier.dashboard', ['category' => 'Snacks / Bar Chow']) }}" 
+    <a href="{{ route('cashier.dashboard', ['category' => 'Snacks / Bar Chow']) }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == 'Snacks / Bar Chow' ? 'active' : '' }}">
         Snacks / Bar Chow
     </a>
-    <a href="{{ route('cashier.dashboard', ['category' => 'Alcoholic Beverages']) }}" 
+    <a href="{{ route('cashier.dashboard', ['category' => 'Alcoholic Beverages']) }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == 'Alcoholic Beverages' ? 'active' : '' }}">
         Alcoholic Drinks
     </a>
-    <a href="{{ route('cashier.dashboard', ['category' => 'Cocktails']) }}" 
+    <a href="{{ route('cashier.dashboard', ['category' => 'Cocktails']) }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == 'Cocktails' ? 'active' : '' }}">
         Cocktails
     </a>
-    <a href="{{ route('cashier.dashboard', ['category' => 'Non-Alcoholic Drinks']) }}" 
+    <a href="{{ route('cashier.dashboard', ['category' => 'Non-Alcoholic Drinks']) }}"
        class="btn btn-outline-success btn-sm mx-1 {{ request('category') == 'Non-Alcoholic Drinks' ? 'active' : '' }}">
         Non-Alcoholic
     </a>
@@ -51,12 +51,12 @@
     <div class="col-md-6">
         <div class="row g-4">
             @foreach($products as $product)
-                <div class="col-md-6"> 
+                <div class="col-md-6">
                     <div class="card shadow-sm h-100 border-0">
-                        <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/400x300?text=No+Image' }}" 
-                             class="card-img-top" 
-                             alt="{{ $product->ProductName }}" 
-                             style="height:250px; object-fit:cover;"> 
+                        <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/400x300?text=No+Image' }}"
+                             class="card-img-top"
+                             alt="{{ $product->ProductName }}"
+                             style="height:250px; object-fit:cover;">
 
                         <div class="card-body text-center d-flex flex-column">
                             <h4 class="fw-bold text-success">{{ $product->ProductName }}</h4>
@@ -112,9 +112,9 @@
                         <tbody id="cartTable">
                             @php $grandTotal = 0; @endphp
                             @foreach($cart as $item)
-                                @php 
-                                    $total = $item['price'] * $item['quantity']; 
-                                    $grandTotal += $total; 
+                                @php
+                                    $total = $item['price'] * $item['quantity'];
+                                    $grandTotal += $total;
 
                                     $productStock = \App\Models\Product::find($item['product_id'])->stock ?? 0;
                                 @endphp
@@ -127,11 +127,11 @@
                                     <td>
                                         <div class="d-flex align-items-center justify-content-center">
                                             <button class="btn btn-sm btn-outline-danger update-cart" data-action="decrease">-</button>
-                                            
+
                                             <span class="px-3 quantity">{{ $item['quantity'] }}</span>
-                                            
-                                            <button 
-                                                class="btn btn-sm btn-outline-success update-cart increase-btn" 
+
+                                            <button
+                                                class="btn btn-sm btn-outline-success update-cart increase-btn"
                                                 data-action="increase"
                                                 {{ $item['quantity'] >= $productStock ? 'disabled' : '' }}>
                                                 +
@@ -150,10 +150,18 @@
                                     </td>
                                 </tr>
                             @endforeach
-                            <tr>
-                                <td colspan="2" class="fw-bold">Grand Total</td>
-                                <td colspan="2" class="fw-bold" id="grandTotal">₱{{ number_format($grandTotal, 2) }}</td>
-                            </tr>
+                                <tr>
+                                    <td colspan="2" class="fw-bold">Grand Total</td>
+                                    <td colspan="2" class="fw-bold" id="grandTotal">₱{{ number_format($grandTotal, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="fw-bold">Discount</td>
+                                    <td colspan="2" class="fw-bold text-danger" id="discount">₱0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="fw-bold">Final Total</td>
+                                    <td colspan="2" class="fw-bold text-success" id="finalTotal">₱{{ number_format($grandTotal, 2) }}</td>
+                                </tr>
                         </tbody>
                     </table>
 
@@ -188,8 +196,41 @@
 </div>
 @endsection
 
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+
+    function calculateDiscount() {
+        let grandTotalElement = document.getElementById("grandTotal");
+        let discountElement = document.getElementById("discount");
+        let finalTotalElement = document.getElementById("finalTotal");
+
+        if (!grandTotalElement || !discountElement || !finalTotalElement) {
+            console.log("Missing grandTotal, discount, or finalTotal element");
+            return;
+        }
+
+        let grandTotalText = grandTotalElement.textContent
+            .replace("₱", "")
+            .replace(/,/g, "")
+            .trim();
+
+        let grandTotal = parseFloat(grandTotalText) || 0;
+
+        let selectedCustomerType = document.querySelector('input[name="customer_type"]:checked');
+        let customerType = selectedCustomerType ? selectedCustomerType.value : "regular";
+
+        let discountRate = 0;
+        if (customerType === "senior" || customerType === "pwd") {
+            discountRate = 0.20;
+        }
+
+        let discount = grandTotal * discountRate;
+        let finalTotal = grandTotal - discount;
+
+        discountElement.textContent = "₱" + discount.toFixed(2);
+        finalTotalElement.textContent = "₱" + finalTotal.toFixed(2);
+    }
 
     function bindCartButtons() {
         document.querySelectorAll(".update-cart").forEach(btn => {
@@ -239,15 +280,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
 
-            // disable/enable plus button
             let increaseBtn = tr.querySelector(".increase-btn");
             if (increaseBtn) {
-                if (data.quantity >= stock) {
-                    increaseBtn.disabled = true;
-                } else {
-                    increaseBtn.disabled = false;
-                }
+                increaseBtn.disabled = data.quantity >= stock;
             }
+
+            calculateDiscount();
         });
     }
 
@@ -267,9 +305,15 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             tr.remove();
             document.getElementById("grandTotal").textContent = "₱" + data.grandTotal;
+            calculateDiscount();
         });
     }
 
+    document.querySelectorAll('input[name="customer_type"]').forEach(radio => {
+        radio.addEventListener("change", calculateDiscount);
+    });
+
     bindCartButtons();
+    calculateDiscount();
 });
 </script>
