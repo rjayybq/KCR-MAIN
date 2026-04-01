@@ -1,7 +1,42 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        @media print {
+            .no-print,
+            nav,
+            .btn {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+            }
+
+            .table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            .table th,
+            .table td {
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+            }
+        }
+    </style>
+
     <h1 class="text-success fw-bold display-5 mb-4">📊 Ingredient Stock In-Out-Balance</h1>
+
+    <div class="mb-3 d-flex justify-content-end gap-2 no-print">
+        <a href="{{ route('inventory.export.csv') }}" class="btn btn-success">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+
+        <button type="button" onclick="window.print()" class="btn btn-secondary">
+            <i class="bi bi-printer"></i> Print
+        </button>
+    </div>
 
     <div class="table-responsive shadow rounded">
         <table class="table table-bordered table-hover align-middle text-center">

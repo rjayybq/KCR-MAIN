@@ -46,9 +46,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('products', ProductController::class);
     Route::post('/products/{product}/order', [ProductController::class, 'order'])
         ->name('products.order');
-    
+
     //Account Management
-    Route::resource('users', UserController::class); 
+    Route::resource('users', UserController::class);
 
     // Inventories
     Route::resource('inventories', InventoryController::class);
@@ -58,7 +58,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Purchase history (all purchases)
     Route::get('/purchase-history', [PurchaseController::class, 'index'])->name('purchaseHistory');
-    
+
 
     // Profile
     Route::get('/profile', [UserController::class, 'show'])->name('profile.show');
@@ -70,8 +70,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
 
+    // Export routes
+    Route::get('/sales/export/csv', [PurchaseController::class, 'exportSalesCsv'])->name('sales.export.csv');
+    Route::get('/inventory/export/csv', [InventoryController::class, 'exportInventoryCsv'])->name('inventory.export.csv');
 
-    
 });
 
 
@@ -82,8 +84,8 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
 
     // Cashier Dashboard
     Route::get('/cashier/dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
-    Route::post('/cashier/order/{product}', [CashierDashboardController::class, 'storeOrder'])->name('cashier.order');   
-     
+    Route::post('/cashier/order/{product}', [CashierDashboardController::class, 'storeOrder'])->name('cashier.order');
+
     // Cashier purchase history (own handled purchases)
     // Route::get('/cashier/purchase-history', [CashierPurchaseController::class, 'index'])
     //     ->name('cashier.purchaseHistory');
@@ -104,7 +106,7 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::post('/cart/remove', [CashierDashboardController::class, 'removeCartAjax'])->name('cashier.remove.ajax');
 
 
-   
+
 });
 
 

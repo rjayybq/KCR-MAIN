@@ -1,6 +1,37 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+@media print {
+    .btn,
+    form,
+    nav,
+    .card:first-of-type,
+    .pagination,
+    .card-footer {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    table th, table td {
+        border: 1px solid #000 !important;
+        padding: 8px !important;
+    }
+}
+</style>
 <div class="container-fluid py-3">
     <h1 class="text-success fw-bold display-5 mb-4">All Sales History</h1>
 
@@ -55,6 +86,16 @@
         class="btn {{ $filter === 'yearly' ? 'btn-success' : 'btn-outline-success' }}">
             Yearly
         </a>
+    </div>
+
+    <div class="mb-3 d-flex justify-content-end gap-2 no-print">
+        <a href="{{ route('sales.export.csv') }}" class="btn btn-success">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+
+        <button type="button" onclick="window.print()" class="btn btn-secondary">
+            <i class="bi bi-printer"></i> Print
+        </button>
     </div>
 
     <div class="card shadow-sm border-0">
