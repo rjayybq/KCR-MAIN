@@ -1,6 +1,25 @@
 @extends('layouts.app')
 
 @section('content')
+
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if(session('info'))
+    <div class="alert alert-info">
+        {{ session('info') }}
+    </div>
+@endif
+
 <div class="container">
     <h1 class="text-success fw-bold mb-4 d-flex justify-content-between align-items-center">
         📢 Notifications
@@ -18,7 +37,7 @@
 
             {{-- ✅ Clear All button (always visible if may laman) --}}
             @if($notifications->count() > 0)
-                <form action="{{ route('notifications.clearAll') }}" method="POST" 
+                <form action="{{ route('notifications.clearAll') }}" method="POST"
                       onsubmit="return confirm('Are you sure you want to delete all notifications?');">
                     @csrf
                     <button type="submit" class="btn btn-sm btn-outline-danger">
@@ -32,12 +51,12 @@
     @if($notifications->count() > 0)
         <div class="list-group shadow-sm">
             @foreach($notifications as $notif)
-                <div class="list-group-item d-flex justify-content-between align-items-center 
+                <div class="list-group-item d-flex justify-content-between align-items-center
                     {{ $notif->is_read ? 'bg-light' : 'bg-white border-start border-4 border-danger' }}">
-                    
+
                     <div>
                         <h5 class="mb-1">{{ $notif->title }}</h5>
-                        
+
                         {{-- ✅ Show ingredient name if available --}}
                         <p class="mb-1 text-muted">
                             {{ $notif->message }}

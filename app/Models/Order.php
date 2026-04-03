@@ -20,14 +20,15 @@ class Order extends Model
         'original_price',
         'discount',
         'total_price',
-        
+
     ];
 
-    
+
 
     public function product()
     {
         return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
     public function cashier()

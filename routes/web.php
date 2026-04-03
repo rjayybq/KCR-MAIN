@@ -71,6 +71,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
 
+
     // Export routes
     Route::get('/sales/export/csv', [PurchaseController::class, 'exportSalesCsv'])->name('sales.export.csv');
     Route::get('/inventory/export/csv', [InventoryController::class, 'exportInventoryCsv'])->name('inventory.export.csv');

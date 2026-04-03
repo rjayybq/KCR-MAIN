@@ -2,21 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\NotificationController;
 use App\Models\Ingredient;
-use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
 {
    public function index()
     {
-        $totalProducts  = Product::count();        // total products
-        $totalInventory = Product::sum('stock');   // total stock
-        $totalAccounts  = User::count();           // total users
-        $totalPurchases = Order::count();  
-        $totalIngredientStock = Ingredient::sum('stock');       // total purchases
+        // 🔥 AUTO GENERATE BEST SELLER NOTIFICATION
+        NotificationController::createSeasonalBestSellerNotification();
+
+        $totalProducts  = Product::count();
+        $totalInventory = Product::sum('stock');
+        $totalAccounts  = User::count();
+        $totalPurchases = Order::count();
+        $totalIngredientStock = Ingredient::sum('stock');
 
         return view('admin.dashboard', compact(
             'totalProducts',
