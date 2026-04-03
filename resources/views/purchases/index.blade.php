@@ -32,64 +32,83 @@
     }
 }
 </style>
+
 <div class="container-fluid py-3">
     <h1 class="text-success fw-bold display-5 mb-4">All Sales History</h1>
 
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-body">
             <form method="GET" action="{{ route('purchaseHistory') }}">
-                <div class="row align-items-end">
+                <div class="row align-items-end g-3">
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-success">Select Date</label>
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-success">Start Date</label>
                         <input
                             type="date"
-                            name="date"
+                            name="from"
                             class="form-control form-control-lg"
-                            value="{{ request('date') }}"
+                            value="{{ request('from') }}"
                         >
                     </div>
 
-                    <div class="col-md-6">
-                        <button type="submit" class="btn btn-success w-100 btn-lg mt-2">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-success">End Date</label>
+                        <input
+                            type="date"
+                            name="to"
+                            class="form-control form-control-lg"
+                            value="{{ request('to') }}"
+                        >
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100 btn-lg">
                             <i class="bi bi-funnel-fill"></i> Filter
                         </button>
                     </div>
 
                 </div>
+
+                @if(request('from') || request('to') || request('filter'))
+                    <div class="mt-3">
+                        <a href="{{ route('purchaseHistory') }}" class="btn btn-outline-secondary">
+                            Clear Filter
+                        </a>
+                    </div>
+                @endif
             </form>
         </div>
     </div>
 
     <div class="mb-4 d-flex flex-wrap gap-2">
-        <a href="{{ route('purchaseHistory') }}"
-        class="btn {{ empty($filter) ? 'btn-success' : 'btn-outline-success' }}">
+        <a href="{{ route('purchaseHistory', array_filter(['from' => request('from'), 'to' => request('to')])) }}"
+           class="btn {{ empty($filter) ? 'btn-success' : 'btn-outline-success' }}">
             All
         </a>
 
-        <a href="{{ route('purchaseHistory', ['filter' => 'daily']) }}"
-        class="btn {{ $filter === 'daily' ? 'btn-success' : 'btn-outline-success' }}">
+        <a href="{{ route('purchaseHistory', array_filter(['filter' => 'daily', 'from' => request('from'), 'to' => request('to')])) }}"
+           class="btn {{ $filter === 'daily' ? 'btn-success' : 'btn-outline-success' }}">
             Daily
         </a>
 
-        <a href="{{ route('purchaseHistory', ['filter' => 'weekly']) }}"
-        class="btn {{ $filter === 'weekly' ? 'btn-success' : 'btn-outline-success' }}">
+        <a href="{{ route('purchaseHistory', array_filter(['filter' => 'weekly', 'from' => request('from'), 'to' => request('to')])) }}"
+           class="btn {{ $filter === 'weekly' ? 'btn-success' : 'btn-outline-success' }}">
             Weekly
         </a>
 
-        <a href="{{ route('purchaseHistory', ['filter' => 'monthly']) }}"
-        class="btn {{ $filter === 'monthly' ? 'btn-success' : 'btn-outline-success' }}">
+        <a href="{{ route('purchaseHistory', array_filter(['filter' => 'monthly', 'from' => request('from'), 'to' => request('to')])) }}"
+           class="btn {{ $filter === 'monthly' ? 'btn-success' : 'btn-outline-success' }}">
             Monthly
         </a>
 
-        <a href="{{ route('purchaseHistory', ['filter' => 'yearly']) }}"
-        class="btn {{ $filter === 'yearly' ? 'btn-success' : 'btn-outline-success' }}">
+        <a href="{{ route('purchaseHistory', array_filter(['filter' => 'yearly', 'from' => request('from'), 'to' => request('to')])) }}"
+           class="btn {{ $filter === 'yearly' ? 'btn-success' : 'btn-outline-success' }}">
             Yearly
         </a>
     </div>
 
     <div class="mb-3 d-flex justify-content-end gap-2 no-print">
-        <a href="{{ route('sales.export.csv') }}" class="btn btn-success">
+        <a href="{{ route('sales.export.csv', request()->all()) }}" class="btn btn-success">
             <i class="bi bi-download"></i> Export CSV
         </a>
 
