@@ -64,7 +64,7 @@
                         <!-- Product Info -->
                         <h5 class="card-title fw-bold text-success">{{ $product->ProductName }}</h5>
                         <p class="mb-1"><strong>Weight:</strong> {{ $product->weight . " " . $product->unit }}</p>
-                        <p class="mb-1"><strong>Stock:</strong> {{ $product->stock }}</p>
+                        <p class="mb-1"><strong>Available:</strong> {{ $product->stock }}</p>
                         <p class="mb-1"><strong>Expiration:</strong>
                             @if($product->expiration_date)
                                 {{ \Carbon\Carbon::parse($product->expiration_date)->format('M d, Y') }}
@@ -111,7 +111,7 @@
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title fw-bold text-success">{{ $product->ProductName }}</h5>
                             <p class="mb-1"><strong>Weight:</strong> {{ $product->weight . " " . $product->unit }}</p>
-                            <p class="mb-1"><strong>Stock:</strong> {{ $product->stock }}</p>
+                            <p class="mb-1"><strong>Available:</strong> {{ $product->stock }}</p>
                             <p class="mb-1"><strong>Expiration:</strong>
                                 @if($product->expiration_date)
                                     {{ \Carbon\Carbon::parse($product->expiration_date)->format('M d, Y') }}

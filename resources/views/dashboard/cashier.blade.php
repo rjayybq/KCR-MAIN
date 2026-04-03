@@ -69,7 +69,7 @@
                             <h4 class="fw-bold text-success">{{ $product->ProductName }}</h4>
                             <p class="mb-1 text-muted">{{ $product->category->name ?? 'N/A' }}</p>
                             <h5 class="mb-2">₱{{ number_format($product->price, 2) }}</h5>
-                            <p class="text-muted">Stock: {{ $product->stock }}</p>
+                            <p class="text-muted">Available: {{ $product->stock }}</p>
 
                             <!-- Add to Cart -->
                             <form action="{{ route('cashier.cart.add', $product->id) }}" method="POST" class="mt-auto">
