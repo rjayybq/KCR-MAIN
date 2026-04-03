@@ -5,8 +5,8 @@
         <div class="text-center py-4 px-3 bg-success bg-gradient shadow-sm">
             <!-- Profile Picture -->
             <a href="{{ route('profile') }}" class="d-inline-block position-relative mb-2">
-                <img src="{{ auth()->user()->profile_pic 
-                                ? asset('storage/' . auth()->user()->profile_pic) 
+                <img src="{{ auth()->user()->profile_pic
+                                ? asset('storage/' . auth()->user()->profile_pic)
                                 : asset('images/default-avatar.png') }}"
                      alt="Profile Picture"
                      class="rounded-circle border border-2 border-white shadow"
@@ -36,43 +36,43 @@
     <ul class="nav flex-column mt-3">
 
         <li class="nav-item">
-            <a href="{{ route('admin.dashboard') }}" 
+            <a href="{{ route('admin.dashboard') }}"
                class="nav-link text-white fw-semibold {{ request()->routeIs('admin.dashboard') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-house me-2"></i> Dashboard
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('products.index') }}" 
+            <a href="{{ route('products.index') }}"
                class="nav-link text-white fw-semibold {{ request()->routeIs('products.*') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-cart-shopping me-2"></i> Products
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('inventories.index') }}" 
+            <a href="{{ route('inventories.index') }}"
                class="nav-link text-white fw-semibold {{ request()->routeIs('inventories.*') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-warehouse me-2"></i> Inventory
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('accountList') }}" 
+            <a href="{{ route('accountList') }}"
                class="nav-link text-white fw-semibold {{ request()->routeIs('accountList') ? 'active bg-success bg-opacity-50' : '' }}">
                 <i class="fa-solid fa-circle-user me-2"></i> Account List
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="{{ route('purchaseHistory') }}" 
+            <a href="{{ route('purchaseHistory') }}"
                class="nav-link text-white fw-semibold {{ request()->routeIs('purchaseHistory') ? 'active bg-success bg-opacity-50' : '' }}">
-                <i class="fa-solid fa-shop me-2"></i> Purchase History
+                <i class="fa-solid fa-shop me-2"></i> Sales History
             </a>
         </li>
 
         @auth
             <li class="nav-item">
-                <a href="{{ route('profile') }}" 
+                <a href="{{ route('profile') }}"
                    class="nav-link text-white fw-semibold {{ request()->routeIs('profile*') ? 'active bg-success bg-opacity-50' : '' }}">
                     <i class="fa-solid fa-user me-2"></i> Profile
                 </a>
@@ -81,7 +81,7 @@
             <li class="nav-item mt-auto">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" 
+                    <button type="submit"
                             class="nav-link text-white fw-semibold border-0 bg-transparent w-100 text-start">
                         <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
                     </button>
