@@ -3,25 +3,76 @@
 @section('content')
     <style>
         @media print {
-            .no-print,
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+
+            .btn,
+            form,
             nav,
-            .btn {
+            .card:first-of-type,
+            .pagination,
+            .card-footer,
+            .no-print {
                 display: none !important;
             }
 
             body {
                 background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 10px !important;
             }
 
-            .table {
+            .container-fluid,
+            .container {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+            }
+
+            .card-body {
+                padding: 0 !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+            }
+
+            table {
                 width: 100% !important;
                 border-collapse: collapse !important;
+                table-layout: auto !important;
+                font-size: 10px !important;
             }
 
-            .table th,
-            .table td {
+            th, td {
                 border: 1px solid #000 !important;
-                padding: 8px !important;
+                padding: 4px !important;
+                font-size: 10px !important;
+                word-break: break-word !important;
+                white-space: normal !important;
+            }
+
+            h1 {
+                font-size: 24px !important;
+                margin-bottom: 15px !important;
+            }
+
+            .badge {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                background: none !important;
+                font-size: 9px !important;
+                padding: 2px 4px !important;
             }
         }
     </style>
