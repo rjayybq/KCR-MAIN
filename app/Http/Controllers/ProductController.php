@@ -6,6 +6,8 @@ use App\Models\Stock;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Ingredient;
+use App\Models\Order;
+use Illuminate\Support\Facades\DB;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +18,16 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('category')->paginate(30);
-        return view('products.index', compact('products'));
+
+        $bestSellerIds = Order::select('product_id', DB::raw('SUM(quantity) as total_sold'))
+            ->whereNotNull('product_id')
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold')
+            ->limit(3)
+            ->pluck('product_id')
+            ->toArray();
+
+        return view('products.index', compact('products', 'bestSellerIds'));
     }
 
     // Show create form

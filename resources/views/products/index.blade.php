@@ -55,7 +55,12 @@
     <div class="row g-4">
         @foreach ($products as $product)
             <div class="col-md-6 col-lg-4 col-xl-3">
-                <div class="card shadow-sm h-100 border-0">
+                <div class="card shadow-sm h-100 border-0 position-relative">
+                    @if(in_array($product->id, $bestSellerIds))
+                        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 px-3 py-2 shadow-sm">
+                            🔥 Best Seller
+                        </span>
+                    @endif
                     <!-- Product Image -->
                     <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x200?text=No+Image' }}"
                          class="card-img-top" alt="{{ $product->ProductName }}" style="height:200px; object-fit:cover;">
