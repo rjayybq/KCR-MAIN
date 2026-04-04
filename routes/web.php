@@ -110,7 +110,9 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::post('/cart/update', [CashierDashboardController::class, 'updateCartAjax'])->name('cashier.update.ajax');
     Route::post('/cart/remove', [CashierDashboardController::class, 'removeCartAjax'])->name('cashier.remove.ajax');
 
-
+    // Export purchase history
+    Route::get('/cashier/purchase-history/export-csv', [CashierPurchaseController::class, 'exportCsv'])
+    ->name('cashier.purchaseHistory.exportCsv');
 
 });
 

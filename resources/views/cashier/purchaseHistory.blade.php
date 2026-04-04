@@ -1,14 +1,38 @@
 @extends('layouts.app1')
 
+<style>
+    @media print {
+        @page {
+            size: landscape;
+        }
+
+        body {
+            zoom: 90%; /* para lumiit konti at magkasya */
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        table {
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 4px !important;
+        }
+    }
+</style>
+
 @section('content')
     <h1 class="text-success fw-bold display-5 ms-3 mb-4">💰 My Sales & Purchase History</h1>
 
     <!-- Income Summary -->
-    <div class="row mb-4 g-3">
+    <div class="row mb-4 g-3 no-print">
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body text-center">
-                    <h6 class="fw-bold text-muted">Today's Income</h6>
+                    <h6 class="fw-bold text-muted">Today's Sales</h6>
                     <h2 class="fw-bold text-success">₱{{ number_format($todayIncome, 2) }}</h2>
                 </div>
             </div>
@@ -17,7 +41,7 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body text-center">
-                    <h6 class="fw-bold text-muted">This Month's Income</h6>
+                    <h6 class="fw-bold text-muted">This Month's Sales</h6>
                     <h2 class="fw-bold text-success">₱{{ number_format($monthIncome, 2) }}</h2>
                 </div>
             </div>
@@ -33,6 +57,16 @@
         </div>
     </div>
 
+    <div class="d-flex justify-content-end gap-2 mb-3 no-print me-3">
+        <a href="{{ route('cashier.purchaseHistory.exportCsv', request()->query()) }}" class="btn btn-success no-print">
+            <i class="fas fa-download"></i> Export CSV
+        </a>
+
+        <button type="button" onclick="window.print()" class="btn btn-secondary no-print">
+            <i class="fas fa-print"></i> Print
+        </button>
+    </div>
+
     @if($filterDate)
     <div class="alert alert-info ms-3 me-3">
             Showing sales for: <strong>{{ $filterDate->format('M d, Y') }}</strong>
@@ -40,7 +74,7 @@
         </div>
     @endif
     <!-- Date Filter -->
-    <div class="card shadow-sm border-0 mb-3">
+    <div class="card shadow-sm border-0 mb-3 no-print">
         <div class="card-body">
             <form method="GET" action="{{ route('cashier.purchase.history') }}" class="row g-3">
                 <div class="col-md-6">
