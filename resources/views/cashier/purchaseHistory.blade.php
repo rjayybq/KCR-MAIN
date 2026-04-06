@@ -25,7 +25,7 @@
 </style>
 
 @section('content')
-    <h1 class="text-success fw-bold display-5 ms-3 mb-4">💰 My Sales & Purchase History</h1>
+    <h1 class="text-success fw-bold display-5 ms-3 mb-4">💰 My Sales History</h1>
 
     <!-- Income Summary -->
     <div class="row mb-4 g-3 no-print">

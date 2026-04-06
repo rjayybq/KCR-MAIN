@@ -100,11 +100,11 @@ class CashierPurchaseController extends Controller
                 'Date',
             ]);
 
-            foreach ($purchases as $index => $purchase) {
+           foreach ($purchases as $index => $purchase) {
                 fputcsv($handle, [
                     $index + 1,
                     $purchase->customer_name ?? $purchase->customer ?? 'N/A',
-                    $purchase->product->product_name ?? $purchase->product->name ?? 'N/A',
+                    optional($purchase->product)->ProductName ?? 'N/A',
                     $purchase->quantity ?? $purchase->qty ?? 0,
                     $purchase->total_price ?? 0,
                     optional($purchase->created_at)->format('M d, Y h:i A'),
